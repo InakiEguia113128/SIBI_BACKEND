@@ -11,11 +11,11 @@ public partial class TUsuario
 
     public string Email { get; set; } = null!;
 
-    public string HashContraseña { get; set; } = null!;
+    public byte[] HashContraseña { get; set; } = null!;
 
     public DateOnly FechaCreacion { get; set; }
 
-    public byte[] Activo { get; set; } = null!;
+    public bool? Activo { get; set; }
 
     public virtual ICollection<TAlquilere> TAlquileres { get; set; } = new List<TAlquilere>();
 

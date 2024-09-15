@@ -2,7 +2,7 @@
 {
     public class ResultadoBase
     {
-        public string Message { set; get; } = null!;
+        public string Mensaje { set; get; } = null!;
         public bool Ok { set; get; }
         public string Error { get; set; }
         public int CodigoEstado { set; get; }

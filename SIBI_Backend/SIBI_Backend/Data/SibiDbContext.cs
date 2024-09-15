@@ -370,9 +370,7 @@ public partial class SibiDbContext : DbContext
                 .HasColumnType("character varying")
                 .HasColumnName("email");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
-            entity.Property(e => e.HashContraseña)
-                .HasColumnType("character varying")
-                .HasColumnName("hash_contraseña");
+            entity.Property(e => e.HashContraseña).HasColumnName("hash_contraseña");
             entity.Property(e => e.NombreCompleto)
                 .HasColumnType("character varying")
                 .HasColumnName("nombre_completo");

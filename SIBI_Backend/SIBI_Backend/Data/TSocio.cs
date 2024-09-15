@@ -31,7 +31,7 @@ public partial class TSocio
 
     public int? PuntosAcumulados { get; set; }
 
-    public byte[] Activo { get; set; } = null!;
+    public bool? Activo { get; set; }
 
     public virtual TBarrio IdBarrioNavigation { get; set; } = null!;
 

@@ -35,7 +35,7 @@ public partial class TLibro
 
     public string ImagenPortadaBase64 { get; set; } = null!;
 
-    public byte[] Activo { get; set; } = null!;
+    public bool? Activo { get; set; }
 
     public virtual TGenerosLibro IdGeneroNavigation { get; set; } = null!;
 
