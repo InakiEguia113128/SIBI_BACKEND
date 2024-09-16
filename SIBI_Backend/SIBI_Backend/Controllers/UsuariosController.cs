@@ -26,5 +26,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPost("iniciar-secion")]
+        public async Task<IActionResult> IniciarSesion([FromBody] EntradaIniciarSesion entrada)
+        {
+            var respuesta = await servicioUsuario.IniciarSesion(entrada);
+
+            if (!respuesta.Ok) 
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

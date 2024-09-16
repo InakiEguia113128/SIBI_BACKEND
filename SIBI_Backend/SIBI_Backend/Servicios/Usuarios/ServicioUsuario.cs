@@ -6,15 +6,21 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Web.Api.Softijs.Results;
 using System.Security.Cryptography;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace SIBI_Backend.Servicios.Usuarios
 {
     public class ServicioUsuario : IServicioUsuario
     {
         private readonly SibiDbContext context;
-        public ServicioUsuario(SibiDbContext _context)
+        private readonly IConfiguration config;
+        public ServicioUsuario(SibiDbContext _context, IConfiguration _config)
         {
             this.context = _context;
+            this.config = _config;
         }
 
         public async Task<ResultadoBase> RegistrarUsuario(EntradaRegistrarUsuario entrada)
@@ -76,6 +82,85 @@ namespace SIBI_Backend.Servicios.Usuarios
             }
 
             return resultado;
+        }
+
+        public async Task<ResultadoBase> IniciarSesion(EntradaIniciarSesion entrada)
+        {
+            var respuesta = new ResultadoBase();
+
+            try
+            {
+                var ePass = GetHash(entrada.contrasenia);
+
+                var usuario = await context.TUsuarios
+                    .Include(x => x.TRolesUsuarios)
+                    .ThenInclude(x => x.IdRolNavigation)
+                    .FirstOrDefaultAsync(c => c.Email == entrada.email && c.HashContraseña == ePass);
+
+                if(usuario == null)
+                {
+                    respuesta.Ok = false;
+                    respuesta.CodigoEstado = 400;
+                    respuesta.Error = "El email o contraseña incorrecto";
+
+                    return respuesta;
+                }
+
+                if ((bool)!usuario.Activo)
+                {
+                    respuesta.Ok = false;
+                    respuesta.CodigoEstado = 400;
+                    respuesta.Error = "El usuario se encuentra inactivo";
+
+                    return respuesta;
+                }
+
+                var claims = new[]
+                {
+                     new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
+                     new Claim(ClaimTypes.Name, usuario.NombreCompleto),
+                     new Claim(ClaimTypes.Email, usuario.Email),
+                     new Claim(ClaimTypes.Role, string.Join(",", usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray()))
+                };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("AppSettings:Token").Value));
+
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.Now.AddDays(double.Parse(config.GetSection("AppSettings:Expires").Value)),
+                    SigningCredentials = creds,
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                var resultado = new
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    Activo = usuario.Activo,
+                    Email = usuario.Email,
+                    Nombre = usuario.NombreCompleto,
+                    Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray(),
+                    Token = token
+                };
+
+                respuesta.Mensaje = "Sesión iniciada exitosamente";
+                respuesta.Ok = true;
+                respuesta.CodigoEstado = 200;
+                respuesta.Resultado = tokenHandler.WriteToken(token);
+            }
+            catch (Exception)
+            {
+                respuesta.Ok = false;
+                respuesta.CodigoEstado = 400;
+                respuesta.Error = "Error al iniciar sesión";
+            }
+
+            return respuesta;
         }
 
         private bool validarEmail(string email)
