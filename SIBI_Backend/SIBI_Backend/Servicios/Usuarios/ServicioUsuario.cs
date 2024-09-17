@@ -52,7 +52,8 @@ namespace SIBI_Backend.Servicios.Usuarios
                 await context.TUsuarios.AddAsync(new TUsuario()
                 {
                     IdUsuario = idUsuario,
-                    NombreCompleto = entrada.nombreCompleto,
+                    Nombre = entrada.nombre,
+                    Apellido = entrada.apellido,
                     Email = entrada.email,
                     HashContraseña = ePass,
                     FechaCreacion = DateOnly.FromDateTime(DateTime.Now),
@@ -118,7 +119,7 @@ namespace SIBI_Backend.Servicios.Usuarios
                 var claims = new[]
                 {
                      new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-                     new Claim(ClaimTypes.Name, usuario.NombreCompleto),
+                     new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
                      new Claim(ClaimTypes.Email, usuario.Email),
                      new Claim(ClaimTypes.Role, string.Join(",", usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray()))
                 };
@@ -140,18 +141,21 @@ namespace SIBI_Backend.Servicios.Usuarios
 
                 var resultado = new
                 {
-                    IdUsuario = usuario.IdUsuario,
-                    Activo = usuario.Activo,
-                    Email = usuario.Email,
-                    Nombre = usuario.NombreCompleto,
-                    Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray(),
-                    Token = token
+                    usuario = new
+                    {
+                        IdUsuario = usuario.IdUsuario,
+                        Activo = usuario.Activo,
+                        Email = usuario.Email,
+                        Nombre = $"{usuario.Nombre} {usuario.Apellido}",
+                        Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray()
+                    },
+                    Token = tokenHandler.WriteToken(token)
                 };
 
                 respuesta.Mensaje = "Sesión iniciada exitosamente";
                 respuesta.Ok = true;
                 respuesta.CodigoEstado = 200;
-                respuesta.Resultado = tokenHandler.WriteToken(token);
+                respuesta.Resultado = resultado;
             }
             catch (Exception)
             {
@@ -163,6 +167,105 @@ namespace SIBI_Backend.Servicios.Usuarios
             return respuesta;
         }
 
+        public async Task<ResultadoBase> ModificarUsuario(EntradaModificarUsuario entrada)
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                if (await context.TUsuarios.AnyAsync(x => x.Email == entrada.email && x.IdUsuario != entrada.idUsuario))
+                {
+                    resultado.Error = "El email ingresado ya se encuentra registrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+                if (!validarEmail(entrada.email))
+                {
+                    resultado.Error = "El email ingresado posee un formato incorrecto";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
+                var usuario = await context.TUsuarios.FirstOrDefaultAsync(x => x.IdUsuario == entrada.idUsuario);
+
+                if(usuario == null)
+                {
+                    resultado.Error = "El usuario no fue encontrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
+                usuario.Nombre = entrada.nombre;
+                usuario.Apellido = entrada.apellido;
+                usuario.Email = entrada.email;
+
+                if(!string.IsNullOrWhiteSpace(entrada.contrasenia))
+                {
+                    usuario.HashContraseña = GetHash(entrada.contrasenia);
+                }
+
+                await context.SaveChangesAsync();
+
+                resultado.Mensaje = "Usuario modificado exitosamente";
+                resultado.Ok = true;
+                resultado.CodigoEstado = 200;
+            }
+            catch (Exception)
+            {
+                resultado.Ok = false;
+                resultado.CodigoEstado = 400;
+                resultado.Error = "Error al iniciar modificar usuario";
+            }
+
+            return resultado;
+        }
+
+        public async Task<ResultadoBase> ObtenerUsuario(Guid id_usuario)
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                var usuario = await context.TUsuarios.FirstOrDefaultAsync(x=>x.IdUsuario == id_usuario);
+
+                if(usuario == null)
+                {
+                    resultado.Error = "El usuario no fue encontrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
+                resultado.Mensaje = "Usuario encontrado exitosamente";
+                resultado.Ok = true;
+                resultado.CodigoEstado = 200;
+
+                resultado.Resultado = new
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    Activo = usuario.Activo,
+                    Email = usuario.Email,
+                    Nombre = usuario.Nombre,
+                    Apellido = usuario.Apellido,
+                    Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray(),
+                };
+            }
+            catch (Exception)
+            {
+                resultado.Ok = false;
+                resultado.CodigoEstado = 400;
+                resultado.Error = "Error al obtener usuario";
+            }
+
+            return resultado;
+        }
         private bool validarEmail(string email)
         {
             return email != null && Regex.IsMatch(email, "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@(([a-zA-Z]+[\\w-]+\\.){1,2}[a-zA-Z]{2,4})$");
@@ -171,6 +274,11 @@ namespace SIBI_Backend.Servicios.Usuarios
         {
             var bytes = Encoding.UTF8.GetBytes(key);
             return new SHA256Managed().ComputeHash(bytes);
+        }
+
+        private string DecodeHash(byte[] key)
+        {
+            return Convert.ToBase64String(key);
         }
     }
 }

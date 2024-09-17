@@ -7,7 +7,7 @@ public partial class TUsuario
 {
     public Guid IdUsuario { get; set; }
 
-    public string NombreCompleto { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
 
     public string Email { get; set; } = null!;
 
@@ -16,6 +16,8 @@ public partial class TUsuario
     public DateOnly FechaCreacion { get; set; }
 
     public bool? Activo { get; set; }
+
+    public string? Apellido { get; set; }
 
     public virtual ICollection<TAlquilere> TAlquileres { get; set; } = new List<TAlquilere>();
 

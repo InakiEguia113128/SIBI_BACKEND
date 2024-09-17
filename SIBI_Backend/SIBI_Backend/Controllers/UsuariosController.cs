@@ -5,7 +5,6 @@ using SIBI_Backend.Servicios.Usuarios;
 
 namespace SIBI_Backend.Controllers
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : Controller
@@ -33,6 +32,34 @@ namespace SIBI_Backend.Controllers
             var respuesta = await servicioUsuario.IniciarSesion(entrada);
 
             if (!respuesta.Ok) 
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [Authorize]
+        [HttpGet("obtener-usuario/{id_usuario}")]
+        public async Task<IActionResult> ModificarUsuario(Guid id_usuario)
+        {
+            var respuesta = await servicioUsuario.ObtenerUsuario(id_usuario);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [Authorize]
+        [HttpPut("modificar-usuario")]
+        public async Task<IActionResult> ModificarUsuario([FromBody] EntradaModificarUsuario entrada)
+        {
+            var respuesta = await servicioUsuario.ModificarUsuario(entrada);
+
+            if (!respuesta.Ok)
             {
                 return BadRequest(respuesta);
             }

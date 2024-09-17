@@ -366,14 +366,17 @@ public partial class SibiDbContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("id_usuario");
             entity.Property(e => e.Activo).HasColumnName("activo");
+            entity.Property(e => e.Apellido)
+                .HasColumnType("character varying")
+                .HasColumnName("apellido");
             entity.Property(e => e.Email)
                 .HasColumnType("character varying")
                 .HasColumnName("email");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.HashContraseña).HasColumnName("hash_contraseña");
-            entity.Property(e => e.NombreCompleto)
+            entity.Property(e => e.Nombre)
                 .HasColumnType("character varying")
-                .HasColumnName("nombre_completo");
+                .HasColumnName("nombre");
         });
 
         OnModelCreatingPartial(modelBuilder);

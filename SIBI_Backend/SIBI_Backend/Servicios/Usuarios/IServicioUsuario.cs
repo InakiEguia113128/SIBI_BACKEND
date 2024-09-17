@@ -7,5 +7,7 @@ namespace SIBI_Backend.Servicios.Usuarios
     {
         Task<ResultadoBase> RegistrarUsuario(EntradaRegistrarUsuario entrada);
         Task<ResultadoBase> IniciarSesion(EntradaIniciarSesion entrada);
+        Task<ResultadoBase> ObtenerUsuario(Guid id_usuario);
+        Task<ResultadoBase> ModificarUsuario(EntradaModificarUsuario entrada);
     }
 }
