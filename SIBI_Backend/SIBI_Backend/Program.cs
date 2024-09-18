@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SIBI_Backend.Data;
 using SIBI_Backend.Servicios.Usuarios;
+using SIBI_Backend.Servicios.Libros;
 using System.Text;
 
 
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IServicioUsuario, ServicioUsuario>();
+builder.Services.AddScoped<IServicioLibro, ServicioLibro>();
 
 
 builder.Services.AddAuthentication(options =>

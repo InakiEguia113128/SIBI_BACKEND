@@ -232,7 +232,8 @@ namespace SIBI_Backend.Servicios.Usuarios
 
             try
             {
-                var usuario = await context.TUsuarios.FirstOrDefaultAsync(x=>x.IdUsuario == id_usuario);
+                var usuario = await context.TUsuarios.Include(x => x.TRolesUsuarios)
+                    .ThenInclude(x => x.IdRolNavigation).FirstOrDefaultAsync(x=>x.IdUsuario == id_usuario);
 
                 if(usuario == null)
                 {
@@ -254,7 +255,7 @@ namespace SIBI_Backend.Servicios.Usuarios
                     Email = usuario.Email,
                     Nombre = usuario.Nombre,
                     Apellido = usuario.Apellido,
-                    Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray(),
+                    Roles = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray()
                 };
             }
             catch (Exception)
