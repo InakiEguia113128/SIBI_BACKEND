@@ -48,5 +48,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPost("obtener-catalogo")]
+        public async Task<IActionResult> ObtenerCatalogo([FromBody] EntradaObtenerCatalogo entrada)
+        {
+            var respuesta = await servicioLibros.ObtenerCatalogo(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

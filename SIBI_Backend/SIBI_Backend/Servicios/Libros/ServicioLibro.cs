@@ -56,8 +56,11 @@ namespace SIBI_Backend.Servicios.Libros
                     CodUbicacion = entrada.codUbicacion,
                     IdGenero = entrada.idGenero,
                     NGenero = entrada.nGenero,
+                    FechaPublicacion = entrada.fechaPublicacion,
                     ImagenPortadaBase64 = entrada.imagenPortadaBase64,
-                    Activo =  true
+                    Activo = true,
+                    FechaCreacion = DateOnly.FromDateTime(DateTime.Now),
+                    PrecioAlquiler = entrada.precioAlquiler
                 });
 
                 await context.SaveChangesAsync();
@@ -101,10 +104,8 @@ namespace SIBI_Backend.Servicios.Libros
 
         public static bool ValidarISBN(string isbn)
         {
-            // Remover guiones o espacios en blanco
             isbn = isbn.Replace("-", "").Replace(" ", "");
 
-            // Determinar si es ISBN-10 o ISBN-13
             if (isbn.Length == 10)
             {
                 return ValidarISBN10(isbn);
@@ -155,6 +156,98 @@ namespace SIBI_Backend.Servicios.Libros
             }
 
             return (suma % 10 == 0);
+        }
+
+        public async Task<ResultadoBase> ObtenerCatalogo(EntradaObtenerCatalogo entrada)
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                var consulta = context.TLibros.AsQueryable();
+
+                if (!string.IsNullOrEmpty(entrada.titulo))
+                {
+                    var tituloLower = entrada.titulo.ToLower();
+                    consulta = consulta.Where(x => x.Titulo.ToLower().Contains(tituloLower));
+                }
+
+                if (!string.IsNullOrEmpty(entrada.autos))
+                {
+                    var autorLower = entrada.autos.ToLower();
+                    consulta = consulta.Where(x => x.NombreAutor.ToLower().Contains(autorLower));
+                }
+
+                if (!string.IsNullOrEmpty(entrada.editorial))
+                {
+                    var editorialLower = entrada.editorial.ToLower();
+                    consulta = consulta.Where(x => x.Editorial.ToLower().Contains(editorialLower));
+                }
+
+                if (!string.IsNullOrEmpty(entrada.ISBN))
+                {
+                    var isbnLower = entrada.ISBN.ToLower();
+                    consulta = consulta.Where(x => x.CodigoIsbn.ToLower().Contains(isbnLower));
+                }
+
+                if (!string.IsNullOrEmpty(entrada.nGenero))
+                {
+                    var nGeneroLower = entrada.nGenero.ToLower();
+                    consulta = consulta.Where(x => x.NGenero.ToLower().Contains(nGeneroLower));
+                }
+
+                if (entrada.idGenero.HasValue)
+                {
+                    consulta = consulta.Where(x => x.IdGenero == entrada.idGenero.Value);
+                }
+
+                if(entrada.fechaPublicacionDesde.HasValue && entrada.fechaPublicacionHasta.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaPublicacion >= DateOnly.FromDateTime(entrada.fechaPublicacionDesde.Value) && x.FechaPublicacion <= DateOnly.FromDateTime(entrada.fechaPublicacionHasta.Value));
+                }
+                else if (entrada.fechaPublicacionDesde.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaPublicacion >= DateOnly.FromDateTime(entrada.fechaPublicacionDesde.Value));
+                }
+                else if (entrada.fechaPublicacionHasta.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaPublicacion <= DateOnly.FromDateTime(entrada.fechaPublicacionHasta.Value));
+                }
+
+                if (entrada.precioDesde.HasValue)
+                {
+                    consulta = consulta.Where(x => x.PrecioAlquiler >= entrada.precioDesde.Value);
+                }
+
+                if (entrada.precioHasta.HasValue)
+                {
+                    consulta = consulta.Where(x => x.PrecioAlquiler <= entrada.precioHasta.Value);
+                }
+
+                //Solo se devuelven los activos
+                consulta = consulta.Where(libro => libro.Activo == true);
+                consulta = consulta.OrderByDescending(l => l.FechaCreacion);
+
+                // Paginación
+
+                consulta = consulta.Skip(entrada.salta);
+                consulta = consulta.Take(entrada.devolver);
+
+                var libros = await consulta.ToListAsync();
+
+                resultado.Ok = true;
+                resultado.Mensaje = "Catálogo recuperado con éxito";
+                resultado.Resultado = libros;
+                resultado.CodigoEstado = 200;
+            }
+            catch (Exception)
+            {
+                resultado.Error = "Error al obtener catálogo libros";
+                resultado.Ok = false;
+                resultado.CodigoEstado = 500;
+            }
+
+            return resultado;
         }
     }
 }

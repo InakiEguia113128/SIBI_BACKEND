@@ -37,6 +37,8 @@ public partial class TLibro
 
     public bool? Activo { get; set; }
 
+    public DateOnly? FechaCreacion { get; set; }
+
     public virtual TGenerosLibro IdGeneroNavigation { get; set; } = null!;
 
     public virtual ICollection<TDetallesAlquiler> TDetallesAlquilers { get; set; } = new List<TDetallesAlquiler>();

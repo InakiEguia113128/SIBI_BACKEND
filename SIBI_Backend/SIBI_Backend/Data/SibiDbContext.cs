@@ -203,6 +203,7 @@ public partial class SibiDbContext : DbContext
             entity.Property(e => e.Editorial)
                 .HasColumnType("character varying")
                 .HasColumnName("editorial");
+            entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaPublicacion).HasColumnName("fecha_publicacion");
             entity.Property(e => e.IdGenero).HasColumnName("id_genero");
             entity.Property(e => e.ImagenPortadaBase64).HasColumnName("imagen_portada_base64");
