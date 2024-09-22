@@ -61,5 +61,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpDelete("eliminar-libro/{idLibro}")]
+        public async Task<IActionResult> ElminarLibro(Guid idLibro)
+        {
+            var respuesta = await servicioLibros.ElminarLibro(idLibro);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace SIBI_Backend.Servicios.Libros
         Task<ResultadoBase> RegistrarLibro(EntradaRegistrarLibro entrada);
         Task<ResultadoBase> ObtenerGeneros();
         Task<ResultadoBase> ObtenerCatalogo(EntradaObtenerCatalogo entrada);
+        Task<ResultadoBase> ElminarLibro(Guid idLibro);
     }
 }

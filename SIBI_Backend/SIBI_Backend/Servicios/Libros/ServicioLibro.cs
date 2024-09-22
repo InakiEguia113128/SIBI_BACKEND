@@ -249,5 +249,38 @@ namespace SIBI_Backend.Servicios.Libros
 
             return resultado;
         }
+
+        public async Task<ResultadoBase> ElminarLibro(Guid idLibro)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                var libro = await context.TLibros.FirstOrDefaultAsync(x=>x.IdLibro == idLibro);
+
+                if (libro == null) 
+                {
+                    salida.Error = "El libro no existe";
+                    salida.CodigoEstado = 400;
+                    salida.Ok = false;
+                }
+
+                libro.Activo = false;
+                
+                await context.SaveChangesAsync();               
+            }
+            catch (Exception)
+            {
+                salida.Error = "Error el eliminar el libro";
+                salida.CodigoEstado = 500;
+                salida.Ok = false;
+            }
+
+            salida.Mensaje = "Libro eliminado correctamente";
+            salida.CodigoEstado = 200;
+            salida.Ok = true;
+
+            return salida;
+        }
     }
 }
