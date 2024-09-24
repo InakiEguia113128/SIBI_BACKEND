@@ -224,8 +224,8 @@ namespace SIBI_Backend.Servicios.Libros
                     consulta = consulta.Where(x => x.PrecioAlquiler <= entrada.precioHasta.Value);
                 }
 
-                //Solo se devuelven los activos
-                consulta = consulta.Where(libro => libro.Activo == true);
+                //Solo se devuelven los activos y tengan ejemplares disponibles
+                consulta = consulta.Where(libro => libro.Activo == true && libro.CantidadEjemplares >= 1);
                 consulta = consulta.OrderByDescending(l => l.FechaCreacion);
 
                 // Paginación
@@ -260,14 +260,18 @@ namespace SIBI_Backend.Servicios.Libros
 
                 if (libro == null) 
                 {
-                    salida.Error = "El libro no existe";
+                    salida.Error = "El libro que desea eliminar no existe";
                     salida.CodigoEstado = 400;
                     salida.Ok = false;
                 }
 
                 libro.Activo = false;
                 
-                await context.SaveChangesAsync();               
+                await context.SaveChangesAsync();
+
+                salida.Mensaje = "Libro eliminado correctamente";
+                salida.CodigoEstado = 200;
+                salida.Ok = true;
             }
             catch (Exception)
             {
@@ -276,9 +280,95 @@ namespace SIBI_Backend.Servicios.Libros
                 salida.Ok = false;
             }
 
-            salida.Mensaje = "Libro eliminado correctamente";
-            salida.CodigoEstado = 200;
-            salida.Ok = true;
+
+
+            return salida;
+        }
+        public async Task<ResultadoBase> ModificarLibro(Guid idLibro, EntradaModificarLibro entrada)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                if(await context.TLibros.AnyAsync(x=>x.CodigoIsbn == entrada.codigoIsbn))
+                {
+                    salida.Ok = false;
+                    salida.Error = "El codigo ISB ya se encuentra registrado en otro libro";
+                    salida.CodigoEstado = 400;
+
+                    return salida;
+                }
+
+                var libro = await context.TLibros.FirstOrDefaultAsync(x => x.IdLibro == idLibro);
+
+                if(libro == null)
+                {
+                    salida.Ok = false;
+                    salida.Error = "El libro que desea modificar no se encuentra";
+                    salida.CodigoEstado = 400;
+
+                    return salida;
+                }
+
+                libro.CodigoIsbn = entrada.codigoIsbn;
+                libro.Titulo = entrada.titulo;
+                libro.CantidadEjemplares = entrada.cantidadEjemplares;
+                libro.Descripcion = entrada.descripcion;
+                libro.NombreAutor = entrada.nombreAutor;
+                libro.Editorial = entrada.editorial;
+                libro.FechaPublicacion = entrada.fechaPublicacion;
+                libro.NroEdicion = entrada.nroEdicion;
+                libro.NroVolumen = entrada.nroVolumen;
+                libro.CodUbicacion = entrada.codUbicacion;
+                libro.IdGenero = entrada.idGenero;
+                libro.NGenero = entrada.nGenero;
+                libro.PrecioAlquiler = entrada.precioAlquiler;
+                libro.ImagenPortadaBase64 = entrada.imagenPortadaBase64;
+
+                //verificar con el cliente si se puede modificar un libro que se encuentra alquilado
+
+                await context.SaveChangesAsync();
+
+                salida.Mensaje = "Libro actualizado correctamente";
+                salida.CodigoEstado = 200;
+                salida.Ok = true;
+            }
+            catch (Exception)
+            {
+                salida.Ok = false;
+                salida.Error = "Ocurrio un error al intentar modificar el libro";
+                salida.CodigoEstado = 500;
+            }
+
+            return salida;
+        }
+
+        public async Task<ResultadoBase> ObtenerLibroPorId(Guid idLibro)
+        {
+            var salida =  new ResultadoBase();
+
+            try
+            {
+                var libro = await context.TLibros.FirstOrDefaultAsync(x => x.IdLibro == idLibro);
+
+                if(libro == null)
+                {
+                    salida.Ok = false;
+                    salida.Error = "El libro que se intenta recuperar no existe";
+                    salida.CodigoEstado = 400;
+                }
+
+                salida.Ok = true;
+                salida.Error = "Libro recuperado exitosamente";
+                salida.CodigoEstado = 500;
+                salida.Resultado = libro;
+            }
+            catch (Exception)
+            {
+                salida.Ok = false;
+                salida.Error = "Ocurrio un error al intentar obtener el libro";
+                salida.CodigoEstado = 500;
+            }
 
             return salida;
         }

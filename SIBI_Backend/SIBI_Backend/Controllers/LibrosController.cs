@@ -36,6 +36,32 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
+        [HttpPost("obtener-catalogo")]
+        public async Task<IActionResult> ObtenerCatalogo([FromBody] EntradaObtenerCatalogo entrada)
+        {
+            var respuesta = await servicioLibros.ObtenerCatalogo(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpPut("actualizar-libro/{idLibro}")]
+        public async Task<IActionResult> ActualizarLibro(Guid idLibro,[FromBody] EntradaModificarLibro entrada)
+        {
+            var respuesta = await servicioLibros.ModificarLibro(idLibro,entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
         [HttpGet("generos-libro")]
         public async Task<IActionResult> ObtenerGeneros()
         {
@@ -49,10 +75,10 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
-        [HttpPost("obtener-catalogo")]
-        public async Task<IActionResult> ObtenerCatalogo([FromBody] EntradaObtenerCatalogo entrada)
+        [HttpGet("obtener-libro/{idLibro}")]
+        public async Task<IActionResult> ObtenerLibroPorId(Guid idLibro)
         {
-            var respuesta = await servicioLibros.ObtenerCatalogo(entrada);
+            var respuesta = await servicioLibros.ObtenerLibroPorId(idLibro);
 
             if (!respuesta.Ok)
             {
