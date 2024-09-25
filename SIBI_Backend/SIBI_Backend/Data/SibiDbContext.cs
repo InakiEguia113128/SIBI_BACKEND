@@ -293,9 +293,6 @@ public partial class SibiDbContext : DbContext
             entity.Property(e => e.Calle)
                 .HasColumnType("character varying")
                 .HasColumnName("calle");
-            entity.Property(e => e.CalleDomicilio)
-                .HasColumnType("character varying")
-                .HasColumnName("calle_domicilio");
             entity.Property(e => e.CodigoPostal).HasColumnName("codigo_postal");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");

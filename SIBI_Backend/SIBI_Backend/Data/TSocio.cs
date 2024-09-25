@@ -11,8 +11,6 @@ public partial class TSocio
 
     public int NumeroTelefono { get; set; }
 
-    public string CalleDomicilio { get; set; } = null!;
-
     public Guid IdBarrio { get; set; }
 
     public string Calle { get; set; } = null!;
@@ -31,7 +29,7 @@ public partial class TSocio
 
     public int? PuntosAcumulados { get; set; }
 
-    public bool? Activo { get; set; }
+    public bool Activo { get; set; }
 
     public virtual TBarrio IdBarrioNavigation { get; set; } = null!;
 

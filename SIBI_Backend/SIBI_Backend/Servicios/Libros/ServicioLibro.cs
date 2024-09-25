@@ -290,7 +290,7 @@ namespace SIBI_Backend.Servicios.Libros
 
             try
             {
-                if(await context.TLibros.AnyAsync(x=>x.CodigoIsbn == entrada.codigoIsbn))
+                if(await context.TLibros.AnyAsync(x=>x.CodigoIsbn == entrada.codigoIsbn && x.IdLibro != idLibro))
                 {
                     salida.Ok = false;
                     salida.Error = "El codigo ISB ya se encuentra registrado en otro libro";
