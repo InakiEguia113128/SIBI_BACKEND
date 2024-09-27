@@ -82,5 +82,31 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpGet("tipos-documento")]
+        public async Task<IActionResult> ObtenerTiposDocumento()
+        {
+            var respuesta = await servicioSocio.ObtenerTiposDocumento();
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpGet("tipos-sexo")]
+        public async Task<IActionResult> ObtenerTiposSexo()
+        {
+            var respuesta = await servicioSocio.ObtenerTiposSexo();
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

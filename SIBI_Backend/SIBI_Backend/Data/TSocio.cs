@@ -11,19 +11,17 @@ public partial class TSocio
 
     public int NumeroTelefono { get; set; }
 
-    public Guid IdBarrio { get; set; }
+    public Guid? IdBarrio { get; set; }
 
     public string Calle { get; set; } = null!;
 
     public int Altura { get; set; }
 
-    public int CodigoPostal { get; set; }
-
     public Guid IdSexo { get; set; }
 
     public Guid IdTipoDocumento { get; set; }
 
-    public int NroDocumento { get; set; }
+    public long NroDocumento { get; set; }
 
     public DateOnly FechaCreacion { get; set; }
 
@@ -31,7 +29,7 @@ public partial class TSocio
 
     public bool Activo { get; set; }
 
-    public virtual TBarrio IdBarrioNavigation { get; set; } = null!;
+    public virtual TBarrio? IdBarrioNavigation { get; set; }
 
     public virtual TTiposSexo IdSexoNavigation { get; set; } = null!;
 

@@ -10,5 +10,7 @@ namespace SIBI_Backend.Servicios.Socios
         Task<ResultadoBase> ObtenerSocio(Guid idUsuario);
         Task<ResultadoBase> ReactivarSocio(Guid idUsuario);
         Task<ResultadoBase> DesactivarSocio(Guid idUsuario);
+        Task<ResultadoBase> ObtenerTiposDocumento();
+        Task<ResultadoBase> ObtenerTiposSexo();
     }
 }

@@ -26,7 +26,6 @@ namespace SIBI_Backend.Servicios.Socios
                     IdUsuario = idUsuario,
                     FechaNacimiento = DateOnly.FromDateTime(entrada.fechaNacimiento),
                     FechaCreacion = DateOnly.FromDateTime(DateTime.Now),
-                    IdBarrio = entrada.idBarrio,
                     Calle = entrada.calle,
                     Altura = entrada.altura,
                     IdSexo = entrada.idSexo,
@@ -69,7 +68,6 @@ namespace SIBI_Backend.Servicios.Socios
                 }
 
                 socio.FechaNacimiento = DateOnly.FromDateTime(entrada.fechaNacimiento);
-                socio.IdBarrio = entrada.idBarrio;
                 socio.Calle = entrada.calle;
                 socio.Altura = entrada.altura;
                 socio.IdSexo = entrada.idSexo;
@@ -192,6 +190,53 @@ namespace SIBI_Backend.Servicios.Socios
                 resultado.Ok = false;
                 resultado.CodigoEstado = 500;
             }
+
+            return resultado;
+        }
+
+        public async Task<ResultadoBase> ObtenerTiposDocumento()
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                var tipos_documento = await context.TTiposDocumentos.ToListAsync();
+
+                resultado.Mensaje = "Tipos de documento recuperados con éxito";
+                resultado.Ok = true;
+                resultado.CodigoEstado = 200;
+                resultado.Resultado = tipos_documento;
+            }
+            catch (Exception)
+            {
+                resultado.Error = "Error al obtener los tipos de documento";
+                resultado.Ok = false;
+                resultado.CodigoEstado = 500;
+            }
+
+            return resultado;
+        }
+
+        public async Task<ResultadoBase> ObtenerTiposSexo()
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                var tipos_documento = await context.TTiposSexos.ToListAsync();
+
+                resultado.Mensaje = "Tipos de sexo recuperados con éxito";
+                resultado.Ok = true;
+                resultado.CodigoEstado = 200;
+                resultado.Resultado = tipos_documento;
+            }
+            catch (Exception)
+            {
+                resultado.Error = "Error al obtener los tipos de sexo";
+                resultado.Ok = false;
+                resultado.CodigoEstado = 500;
+            }
+
 
             return resultado;
         }

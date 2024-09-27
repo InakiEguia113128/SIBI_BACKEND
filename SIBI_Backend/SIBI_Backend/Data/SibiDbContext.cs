@@ -293,7 +293,6 @@ public partial class SibiDbContext : DbContext
             entity.Property(e => e.Calle)
                 .HasColumnType("character varying")
                 .HasColumnName("calle");
-            entity.Property(e => e.CodigoPostal).HasColumnName("codigo_postal");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");
             entity.Property(e => e.IdBarrio).HasColumnName("id_barrio");
@@ -305,7 +304,6 @@ public partial class SibiDbContext : DbContext
 
             entity.HasOne(d => d.IdBarrioNavigation).WithMany(p => p.TSocios)
                 .HasForeignKey(d => d.IdBarrio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_barrio");
 
             entity.HasOne(d => d.IdSexoNavigation).WithMany(p => p.TSocios)
