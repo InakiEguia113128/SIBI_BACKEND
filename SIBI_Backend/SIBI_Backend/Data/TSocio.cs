@@ -9,7 +9,7 @@ public partial class TSocio
 
     public DateOnly FechaNacimiento { get; set; }
 
-    public int NumeroTelefono { get; set; }
+    public long NumeroTelefono { get; set; }
 
     public Guid? IdBarrio { get; set; }
 

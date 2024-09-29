@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using SIBI_Backend.Comunes;
 using SIBI_Backend.Data;
 using SIBI_Backend.Modelos.Socios;
 using System;
@@ -21,9 +22,20 @@ namespace SIBI_Backend.Servicios.Socios
 
             try
             {
+                var usuario = await context.TUsuarios.Include(x => x.TRolesUsuarios).ThenInclude(x => x.IdRolNavigation).FirstOrDefaultAsync(x => x.IdUsuario == idUsuario);
+
+                if (usuario == null)
+                {
+                    resultado.Error = "Usuario no encontrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
                 context.TSocios.Add(new TSocio 
                 {
-                    IdUsuario = idUsuario,
+                    IdUsuario = usuario.IdUsuario,
                     FechaNacimiento = DateOnly.FromDateTime(entrada.fechaNacimiento),
                     FechaCreacion = DateOnly.FromDateTime(DateTime.Now),
                     Calle = entrada.calle,
@@ -31,14 +43,23 @@ namespace SIBI_Backend.Servicios.Socios
                     IdSexo = entrada.idSexo,
                     IdTipoDocumento = entrada.idTipoDocumento,
                     NroDocumento = entrada.nroDocumento,
+                    NumeroTelefono = entrada.numeroTelefono,
                     Activo  = true
                 });
-                
+
+                usuario.TRolesUsuarios.Add(new TRolesUsuario
+                {
+                    IdRolUsuario = Guid.NewGuid(),
+                    IdRol = RolesConstante.SocioRegistrado,
+                    IdUsuario = usuario.IdUsuario
+                });
+
                 await context.SaveChangesAsync();
 
                 resultado.Mensaje = "Socio registrado con éxito";
                 resultado.Ok = true;
                 resultado.CodigoEstado = 200;
+                resultado.Resultado = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray();
             }
             catch (Exception)
             {
@@ -73,6 +94,7 @@ namespace SIBI_Backend.Servicios.Socios
                 socio.IdSexo = entrada.idSexo;
                 socio.IdTipoDocumento = entrada.idTipoDocumento;
                 socio.NroDocumento = entrada.nroDocumento;
+                socio.NumeroTelefono = entrada.numeroTelefono;
 
                 await context.SaveChangesAsync();
 
