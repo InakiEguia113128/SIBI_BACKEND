@@ -4,12 +4,11 @@ using SIBI_Backend.Data;
 using SIBI_Backend.Modelos.Usuarios;
 using System.Text;
 using System.Text.RegularExpressions;
-using Web.Api.Softijs.Results;
 using System.Security.Cryptography;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using SIBI_Backend.Modelos;
 
 namespace SIBI_Backend.Servicios.Usuarios
 {

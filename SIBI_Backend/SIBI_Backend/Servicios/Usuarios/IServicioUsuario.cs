@@ -1,5 +1,5 @@
-﻿using SIBI_Backend.Modelos.Usuarios;
-using Web.Api.Softijs.Results;
+﻿using SIBI_Backend.Modelos;
+using SIBI_Backend.Modelos.Usuarios;
 
 namespace SIBI_Backend.Servicios.Usuarios
 {

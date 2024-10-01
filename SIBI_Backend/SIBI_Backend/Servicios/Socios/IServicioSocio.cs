@@ -1,5 +1,5 @@
-﻿using SIBI_Backend.Modelos.Socios;
-using Web.Api.Softijs.Results;
+﻿using SIBI_Backend.Modelos;
+using SIBI_Backend.Modelos.Socios;
 
 namespace SIBI_Backend.Servicios.Socios
 {

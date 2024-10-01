@@ -2,9 +2,8 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SIBI_Backend.Comunes;
 using SIBI_Backend.Data;
+using SIBI_Backend.Modelos;
 using SIBI_Backend.Modelos.Socios;
-using System;
-using Web.Api.Softijs.Results;
 
 namespace SIBI_Backend.Servicios.Socios
 {

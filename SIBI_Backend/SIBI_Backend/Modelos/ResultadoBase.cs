@@ -1,4 +1,4 @@
-﻿namespace Web.Api.Softijs.Results
+﻿namespace SIBI_Backend.Modelos
 {
     public class ResultadoBase
     {
