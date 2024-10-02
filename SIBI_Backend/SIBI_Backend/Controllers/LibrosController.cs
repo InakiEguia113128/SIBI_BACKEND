@@ -88,6 +88,19 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
+        [HttpGet("obtener-libro-isbn/{ISBN}")]
+        public async Task<IActionResult> ObtenerLibroPorISBN(string isbn)
+        {
+            var respuesta = await servicioLibros.ObtenerLibroISBN(isbn);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
         [HttpDelete("eliminar-libro/{idLibro}")]
         public async Task<IActionResult> ElminarLibro(Guid idLibro)
         {

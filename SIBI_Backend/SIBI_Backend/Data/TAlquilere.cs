@@ -9,8 +9,6 @@ public partial class TAlquilere
 
     public Guid IdSocio { get; set; }
 
-    public Guid IdEmpleado { get; set; }
-
     public DateOnly FechaDesde { get; set; }
 
     public DateOnly FechaHasta { get; set; }
@@ -22,8 +20,6 @@ public partial class TAlquilere
     public Guid IdEstadoAlquiler { get; set; }
 
     public DateOnly FechaCreacion { get; set; }
-
-    public virtual TUsuario IdEmpleadoNavigation { get; set; } = null!;
 
     public virtual TEstadosAlquiler IdEstadoAlquilerNavigation { get; set; } = null!;
 

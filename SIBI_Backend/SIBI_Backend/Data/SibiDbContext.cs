@@ -61,16 +61,10 @@ public partial class SibiDbContext : DbContext
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaDesde).HasColumnName("fecha_desde");
             entity.Property(e => e.FechaHasta).HasColumnName("fecha_hasta");
-            entity.Property(e => e.IdEmpleado).HasColumnName("id_empleado");
             entity.Property(e => e.IdEstadoAlquiler).HasColumnName("id_estado_alquiler");
             entity.Property(e => e.IdSocio).HasColumnName("id_socio");
             entity.Property(e => e.MontoTotal).HasColumnName("monto_total");
             entity.Property(e => e.PuntosCanjeados).HasColumnName("puntos_canjeados");
-
-            entity.HasOne(d => d.IdEmpleadoNavigation).WithMany(p => p.TAlquileres)
-                .HasForeignKey(d => d.IdEmpleado)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_empleado");
 
             entity.HasOne(d => d.IdEstadoAlquilerNavigation).WithMany(p => p.TAlquileres)
                 .HasForeignKey(d => d.IdEstadoAlquiler)

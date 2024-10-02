@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SIBI_Backend.Data;
+using SIBI_Backend.Modelos;
 using SIBI_Backend.Modelos.Libros;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Web.Api.Softijs.Results;
+
 
 namespace SIBI_Backend.Servicios.Libros
 {
@@ -368,6 +365,60 @@ namespace SIBI_Backend.Servicios.Libros
                 salida.Ok = false;
                 salida.Error = "Ocurrio un error al intentar obtener el libro";
                 salida.CodigoEstado = 500;
+            }
+
+            return salida;
+        }
+
+        public async Task<ResultadoBase> ObtenerLibroISBN(string ISBN)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                var libro = await context.TLibros.FirstOrDefaultAsync(x=>x.CodigoIsbn == ISBN);
+
+                if(libro == null)
+                {
+                    salida.Ok = false;
+                    salida.Error = "El ISBN ingresado no coincide con el de ningun libro";
+                    salida.CodigoEstado = 400;
+
+                    return salida;
+                }
+
+                if (libro.Activo == false)
+                {
+                    salida.Ok = false;
+                    salida.Error = "El libro que intentas agregar no esta disponible";
+                    salida.CodigoEstado = 400;
+
+                    return salida;
+                }
+
+                if (libro.CantidadEjemplares <= 0)
+                {
+                    salida.Ok = false;
+                    salida.Error = "El libro que intentas agregar no posee ejemplares disponibles para alquilar =(";
+                    salida.CodigoEstado = 400;
+
+                    return salida;
+                }
+
+                salida.Ok = true;
+                salida.Mensaje = "Libro recuperado exitosamente";
+                salida.CodigoEstado = 200;
+                salida.Resultado = libro;
+
+            }
+            catch (Exception)
+            {
+                salida.Ok = false;
+                salida.Error = "Error al recuperar el libro por ISBN";
+                salida.CodigoEstado = 500;
+
+                return salida;
+
             }
 
             return salida;

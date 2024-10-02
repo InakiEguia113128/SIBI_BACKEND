@@ -1,9 +1,6 @@
-﻿using SIBI_Backend.Modelos.Libros;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Web.Api.Softijs.Results;
+﻿using SIBI_Backend.Modelos;
+using SIBI_Backend.Modelos.Libros;
+
 
 namespace SIBI_Backend.Servicios.Libros
 {
@@ -15,5 +12,6 @@ namespace SIBI_Backend.Servicios.Libros
         Task<ResultadoBase> ElminarLibro(Guid idLibro);
         Task<ResultadoBase> ModificarLibro(Guid idLibro, EntradaModificarLibro entrada);
         Task<ResultadoBase> ObtenerLibroPorId(Guid idLibro);
+        Task<ResultadoBase> ObtenerLibroISBN(string ISBN);
     }
 }
