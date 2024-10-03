@@ -56,7 +56,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                     FechaCreacion = DateOnly.FromDateTime(DateTime.Now),
                     FechaDesde = DateOnly.FromDateTime(entradaAlquiler.fechaDesde),
                     FechaHasta = DateOnly.FromDateTime(entradaAlquiler.fechaHasta),
-                    IdEstadoAlquiler = EstadosAlquilerContante.Pagado,
+                    IdEstadoAlquiler = EstadosAlquilerContante.Listo_para_retirar,
                     MontoTotal = entradaAlquiler.montoTotal,
                     IdSocio = socio.IdUsuario,
                     PuntosCanjeados = entradaAlquiler.puntosCanjeados

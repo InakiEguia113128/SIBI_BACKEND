@@ -8,6 +8,7 @@ using SIBI_Backend.Servicios.Libros;
 using SIBI_Backend.Servicios.Socios;
 using System.Text;
 using SIBI_Backend.Servicios.Alquileres;
+using SIBI_Backend.Servicios.MercadoPago;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IServicioUsuario, ServicioUsuario>();
 builder.Services.AddScoped<IServicioLibro, ServicioLibro>();
 builder.Services.AddScoped<IServicioSocio, ServicioSocio>();
 builder.Services.AddScoped<IServicioAlquiler, ServicioAlquiler>();
+builder.Services.AddScoped<IServicioMercadoPago, ServicioMercadoPago>();
 
 
 builder.Services.AddAuthentication(options =>
