@@ -74,7 +74,7 @@ public partial class SibiDbContext : DbContext
             entity.HasOne(d => d.IdSocioNavigation).WithMany(p => p.TAlquileres)
                 .HasForeignKey(d => d.IdSocio)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_socio");
+                .HasConstraintName("fk_usuario");
         });
 
         modelBuilder.Entity<TBarrio>(entity =>

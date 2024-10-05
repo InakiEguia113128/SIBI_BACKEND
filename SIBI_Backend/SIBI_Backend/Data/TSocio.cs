@@ -36,6 +36,4 @@ public partial class TSocio
     public virtual TTiposDocumento IdTipoDocumentoNavigation { get; set; } = null!;
 
     public virtual TUsuario IdUsuarioNavigation { get; set; } = null!;
-
-    public virtual ICollection<TAlquilere> TAlquileres { get; set; } = new List<TAlquilere>();
 }

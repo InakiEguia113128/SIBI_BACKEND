@@ -19,6 +19,8 @@ public partial class TUsuario
 
     public string? Apellido { get; set; }
 
+    public virtual ICollection<TAlquilere> TAlquileres { get; set; } = new List<TAlquilere>();
+
     public virtual ICollection<TRolesUsuario> TRolesUsuarios { get; set; } = new List<TRolesUsuario>();
 
     public virtual TSocio? TSocio { get; set; }

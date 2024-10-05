@@ -23,7 +23,7 @@ public partial class TAlquilere
 
     public virtual TEstadosAlquiler IdEstadoAlquilerNavigation { get; set; } = null!;
 
-    public virtual TSocio IdSocioNavigation { get; set; } = null!;
+    public virtual TUsuario IdSocioNavigation { get; set; } = null!;
 
     public virtual ICollection<TDetallesAlquiler> TDetallesAlquilers { get; set; } = new List<TDetallesAlquiler>();
 }

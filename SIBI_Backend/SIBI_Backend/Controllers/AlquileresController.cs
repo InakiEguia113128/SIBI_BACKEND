@@ -30,5 +30,44 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPost("obtener-alquileres")]
+        public async Task<IActionResult> ObtenerAlquileres([FromBody] EntradaObtenerAlquileres entrada)
+        {
+            var respuesta = await servicioAlquiler.ObtenerAquileres(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpGet("obtener-alquiler/{id}")]
+        public async Task<IActionResult> ObtenerAlquiler(Guid id)
+        {
+            var respuesta = await servicioAlquiler.ObtenerAlquilerPorId(id);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpGet("obtener-estados-alquiler")]
+        public async Task<IActionResult> ObtenerEstadosAlquiler()
+        {
+            var respuesta = await servicioAlquiler.ObtenerEstadosAlquiler();
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }
