@@ -44,6 +44,19 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
+        [HttpPut("cambiar-estado")]
+        public async Task<IActionResult> CambiarEstadoAlquiler([FromBody] EntradaCambiarEstadoAlquiler entrada)
+        {
+            var respuesta = await servicioAlquiler.CambiarEstadoAlquiler(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
         [HttpGet("obtener-alquiler/{id}")]
         public async Task<IActionResult> ObtenerAlquiler(Guid id)
         {

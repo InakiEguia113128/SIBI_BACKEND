@@ -274,5 +274,103 @@ namespace SIBI_Backend.Servicios.Alquileres
 
             return salida;
         }
+
+        public async Task<ResultadoBase> CambiarEstadoAlquiler(EntradaCambiarEstadoAlquiler entrada)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                var alquiler = await context.TAlquileres.FirstOrDefaultAsync(x => x.IdAlquiler == entrada.idAlquiler);
+
+                if (alquiler == null)
+                {
+                    salida.Ok = false;
+                    salida.CodigoEstado = 500;
+                    salida.Error = "Error al obtener alquiler";
+                    return salida;
+                }
+
+                var estadoActual = alquiler.IdEstadoAlquiler;
+                var nuevoEstado = entrada.idEstadoAlquiler;
+
+                // Verifica las transiciones permitidas
+                switch (estadoActual)
+                {
+                    case var estado when estado == EstadosAlquilerContante.Listo_para_retirar:
+                        if (nuevoEstado != EstadosAlquilerContante.En_curso)
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = "La transición de estado no es válida.";
+                            return salida;
+                        }
+                        break;
+
+                    case var estado when estado == EstadosAlquilerContante.En_curso:
+                        if (nuevoEstado != EstadosAlquilerContante.Devuelto && nuevoEstado != EstadosAlquilerContante.Pendiente_devolucion)
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = "La transición de estado no es válida.";
+                            return salida;
+                        }
+
+                        if(nuevoEstado == EstadosAlquilerContante.Devuelto)
+                        {
+                            var detallesAlquiler = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+
+                            foreach (var detalle in detallesAlquiler)
+                            {
+                                detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+                            }
+                        }
+                        break;
+
+                    case var estado when estado == EstadosAlquilerContante.Pendiente_devolucion:
+                        if (nuevoEstado != EstadosAlquilerContante.Devuelto)
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = "La transición de estado no es válida.";
+                            return salida;
+                        }
+                        break;
+
+                    case var estado when nuevoEstado == EstadosAlquilerContante.Cancelado:
+
+                        var detalles =  await context.TDetallesAlquilers.Include(x=>x.IdLibroNavigation).Where(x=>x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+
+                        foreach (var detalle in detalles)
+                        {
+                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+                        }
+                        break;
+
+                    default:
+                        salida.Ok = false;
+                        salida.CodigoEstado = 400;
+                        salida.Error = "Estado de alquiler no reconocido.";
+                        return salida;
+                }
+
+                // Cambia el estado
+                alquiler.IdEstadoAlquiler = nuevoEstado;
+                await context.SaveChangesAsync();
+
+                salida.Ok = true;
+                salida.CodigoEstado = 200;
+                salida.Mensaje = "Estado de alquiler modificado";
+            }
+            catch (Exception)
+            {
+                salida.Ok = false;
+                salida.CodigoEstado = 500;
+                salida.Error = "Error al intentar cambiar el estado del alquiler.";
+            }
+
+            return salida;
+        }
+
     }
 }

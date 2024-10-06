@@ -10,5 +10,6 @@ namespace SIBI_Backend.Servicios.Alquileres
         Task<ResultadoBase> ObtenerAquileres(EntradaObtenerAlquileres entradaAlquiler);
         Task<ResultadoBase> ObtenerAlquilerPorId(Guid id_Alquiler);
         Task<ResultadoBase> ObtenerEstadosAlquiler();
+        Task<ResultadoBase> CambiarEstadoAlquiler(EntradaCambiarEstadoAlquiler entradaAlquiler);
     }
 }

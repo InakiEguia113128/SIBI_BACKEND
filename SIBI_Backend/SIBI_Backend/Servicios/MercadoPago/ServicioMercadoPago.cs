@@ -47,9 +47,9 @@ namespace SIBI_Backend.Servicios.MercadoPago
                     Items = lista_preferencia,
                     BackUrls = new PreferenceBackUrlsRequest
                     {
-                        Success = "https://tusitio.com/success",
-                        Failure = "https://tusitio.com/failure",
-                        Pending = "https://tusitio.com/pending"
+                        Success = "http://localhost:4200/rents",
+                        Failure = "http://localhost:4200/rents",
+                        Pending = "http://localhost:4200/rents"
                     },
                     AutoReturn = "approved",
                     AdditionalInfo = $"Alquiler de libros para el socio {usuario.Nombre} {usuario.Apellido}"
