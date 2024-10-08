@@ -69,6 +69,12 @@ namespace SIBI_Backend.Servicios.Alquileres
                     var libro = await context.TLibros.FirstOrDefaultAsync(x => x.IdLibro == detalle.idLibro);
 
                     libro.CantidadEjemplares = libro.CantidadEjemplares - 1;
+
+                    if (socio.PuntosAcumulados == null)
+                    {
+                        socio.PuntosAcumulados = 0;
+                    }
+                    socio.PuntosAcumulados += 5;
                 }
 
                 alquiler.TDetallesAlquilers = lista_detalles;
