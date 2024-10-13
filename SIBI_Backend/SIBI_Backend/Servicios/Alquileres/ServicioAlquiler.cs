@@ -174,7 +174,7 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                 if (!string.IsNullOrEmpty(entrada.Nombre))
                 {
-                    consulta = consulta.Where(x => x.IdSocioNavigation.Nombre == entrada.Nombre);
+                    consulta = consulta.Where(x => x.IdSocioNavigation.Nombre.ToLower().Contains(entrada.Nombre.ToLower()));
                 }
 
 
@@ -185,7 +185,7 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                 if (!string.IsNullOrEmpty(entrada.Apellido))
                 {
-                    consulta = consulta.Where(x => x.IdSocioNavigation.Apellido == entrada.Apellido);
+                    consulta = consulta.Where(x => x.IdSocioNavigation.Apellido.ToLower().Contains(entrada.Apellido.ToLower()));
                 }
 
                 if (entrada.idTipoDocumentoSocio.HasValue)
@@ -219,9 +219,20 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                 var libros = await consulta.ToListAsync();
 
+                var total = 0;
+
+                if (entrada.idUsuario.HasValue)
+                {
+                    total = await context.TAlquileres.CountAsync(x => x.IdSocio == entrada.idUsuario);
+                }
+                else
+                {
+                    total = await context.TAlquileres.CountAsync();
+                }
+
                 var resultado = libros.Select(alquiler => new
                 {
-                    total = libros.Count,
+                    total = total,
                     alquiler.IdAlquiler,
                     alquiler.IdEstadoAlquiler,
                     alquiler.IdEstadoAlquilerNavigation.Descripcion,
@@ -304,12 +315,29 @@ namespace SIBI_Backend.Servicios.Alquileres
                 switch (estadoActual)
                 {
                     case var estado when estado == EstadosAlquilerContante.Listo_para_retirar:
-                        if (nuevoEstado != EstadosAlquilerContante.En_curso)
+                        if (nuevoEstado != EstadosAlquilerContante.En_curso && nuevoEstado != EstadosAlquilerContante.Cancelado)
                         {
                             salida.Ok = false;
                             salida.CodigoEstado = 400;
                             salida.Error = "La transición de estado no es válida.";
                             return salida;
+                        }
+                        var detalles1 = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+                        var socio1 = await context.TSocios.FirstOrDefaultAsync(x => x.IdUsuario == alquiler.IdSocio && x.Activo == true);
+
+                        if (socio1 != null)
+                        {
+                            socio1.PuntosAcumulados += alquiler.PuntosCanjeados;
+                        }
+
+                        foreach (var detalle in detalles1)
+                        {
+                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+
+                            if (socio1 != null)
+                            {
+                                socio1.PuntosAcumulados = socio1.PuntosAcumulados - 5;
+                            }
                         }
                         break;
 
@@ -346,10 +374,21 @@ namespace SIBI_Backend.Servicios.Alquileres
                     case var estado when nuevoEstado == EstadosAlquilerContante.Cancelado:
 
                         var detalles =  await context.TDetallesAlquilers.Include(x=>x.IdLibroNavigation).Where(x=>x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+                        var socio = await context.TSocios.FirstOrDefaultAsync(x => x.IdUsuario == alquiler.IdSocio && x.Activo == true);
+
+                        if (socio != null)
+                        {
+                            socio.PuntosAcumulados += alquiler.PuntosCanjeados;
+                        }
 
                         foreach (var detalle in detalles)
                         {
-                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;  
+
+                            if(socio != null)
+                            {
+                                socio.PuntosAcumulados = socio.PuntosAcumulados - 5; 
+                            }
                         }
                         break;
 

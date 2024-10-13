@@ -108,5 +108,31 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpGet("obtener-ranking")]
+        public async Task<IActionResult> ObtenerRanking()
+        {
+            var respuesta = await servicioSocio.ObtenerRankingMensual();
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpGet("obtener-ranking/{idSocio}")]
+        public async Task<IActionResult> ObtenerRanking(Guid idSocio)
+        {
+            var respuesta = await servicioSocio.ObtenerPuestoSocioRankingMensual(idSocio);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

@@ -39,7 +39,6 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
-        [Authorize]
         [HttpGet("obtener-usuario/{id_usuario}")]
         public async Task<IActionResult> ModificarUsuario(Guid id_usuario)
         {

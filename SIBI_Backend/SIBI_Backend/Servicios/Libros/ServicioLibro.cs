@@ -21,7 +21,7 @@ namespace SIBI_Backend.Servicios.Libros
 
             try
             {
-                if(await context.TLibros.AnyAsync(x => x.CodigoIsbn == entrada.codigoIsbn))
+                if(await context.TLibros.AnyAsync(x => x.CodigoIsbn == entrada.codigoIsbn && x.Activo == true))
                 {
                     resultado.Ok = false;
                     resultado.CodigoEstado = 400;

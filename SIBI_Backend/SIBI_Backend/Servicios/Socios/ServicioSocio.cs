@@ -58,7 +58,6 @@ namespace SIBI_Backend.Servicios.Socios
                 resultado.Mensaje = "Socio registrado con éxito";
                 resultado.Ok = true;
                 resultado.CodigoEstado = 200;
-                resultado.Resultado = usuario.TRolesUsuarios.Select(s => s.IdRolNavigation.Descripcion).ToArray();
             }
             catch (Exception)
             {
@@ -258,6 +257,128 @@ namespace SIBI_Backend.Servicios.Socios
                 resultado.CodigoEstado = 500;
             }
 
+
+            return resultado;
+        }
+
+        public async Task<ResultadoBase> ObtenerRankingMensual()
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+                var socios = await context.TSocios
+                            .Include(s => s.IdUsuarioNavigation)
+                                .ThenInclude(u => u.TAlquileres)
+                                    .ThenInclude(a => a.TDetallesAlquilers)
+                            .Where(s => s.Activo &&
+                                        s.IdUsuarioNavigation.TAlquileres
+                                            .Any(a => a.FechaDesde.Month == DateTime.Now.Month && a.FechaDesde.Year == DateTime.Now.Year))
+                            .ToListAsync();
+
+
+                var ranking = socios
+                            .Select(socio => new
+                            {
+                                socio.NroDocumento,
+                                socio.IdTipoDocumento,
+                                socio.Calle,
+                                socio.Altura,
+                                socio.NumeroTelefono,
+                                socio.IdUsuarioNavigation.Nombre,
+                                socio.IdUsuarioNavigation.Apellido,
+                                CantidadLibrosAlquilados = socio.IdUsuarioNavigation.TAlquileres
+                                    .Where(x=>x.IdEstadoAlquiler != EstadosAlquilerContante.Listo_para_retirar && x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado)
+                                    .SelectMany(alquiler => alquiler.TDetallesAlquilers)
+                                    .Count()
+                            })
+                            .Where(s => s.CantidadLibrosAlquilados > 0)
+                            .OrderByDescending(s => s.CantidadLibrosAlquilados) 
+                            .Take(10)
+                            .ToList();
+
+                resultado.Ok = true;
+                resultado.Mensaje = "Alquieleres recuperados con éxito";
+                resultado.Resultado = ranking;
+                resultado.CodigoEstado = 200;
+            }
+            catch (Exception)
+            {
+                resultado.Error = "Error al obtener ranking mensual";
+                resultado.Ok = false;
+                resultado.CodigoEstado = 500;
+            }
+
+            return resultado;
+        }
+
+        public async Task<ResultadoBase> ObtenerPuestoSocioRankingMensual(Guid idSocio)
+        {
+            var resultado = new ResultadoBase();
+
+            try
+            {
+
+                var socios = await context.TSocios
+                    .Include(s => s.IdUsuarioNavigation)
+                        .ThenInclude(u => u.TAlquileres)
+                            .ThenInclude(a => a.TDetallesAlquilers)
+                    .Where(s => s.Activo &&
+                                s.IdUsuarioNavigation.TAlquileres
+                                    .Any(a => a.FechaDesde.Month == DateTime.Now.Month && a.FechaDesde.Year == DateTime.Now.Year))
+                    .ToListAsync();
+
+                var ranking = socios.Select(socio => new
+                {
+                    socio.NroDocumento,
+                    socio.IdTipoDocumento,
+                    socio.Calle,
+                    socio.Altura,
+                    socio.NumeroTelefono,
+                    socio.IdUsuarioNavigation.Nombre,
+                    socio.IdUsuarioNavigation.Apellido,
+                    socio.IdUsuarioNavigation.IdUsuario,
+                    CantidadLibrosAlquilados = socio.IdUsuarioNavigation.TAlquileres
+                        .SelectMany(alquiler => alquiler.TDetallesAlquilers)
+                        .Count()
+                })
+                .OrderByDescending(s => s.CantidadLibrosAlquilados) 
+                .ToList();
+
+                var socioEspecifico = ranking
+                    .Select((s, index) => new
+                    {
+                        Posicion = index + 1, 
+                        Socio = s
+                    })
+                    .FirstOrDefault(s => s.Socio.IdUsuario == idSocio);
+
+                if(socioEspecifico == null)
+                {
+                    resultado.Error = "Error al obtener posicion de socio en ranking mensual, el socio no fue encontrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
+
+                resultado.Ok = true;
+                resultado.Mensaje = "Posición del socio en el ranking mensual recuperada";
+                resultado.Resultado = new 
+                {
+                    Posicion = socioEspecifico?.Posicion ?? 0,
+                    Socio = socioEspecifico.Socio
+                };
+                resultado.CodigoEstado = 200;
+
+            }
+            catch (Exception)
+            {
+                resultado.Error = "Error al obtener posicion de socio en ranking mensual";
+                resultado.Ok = false;
+                resultado.CodigoEstado = 500;
+            }
 
             return resultado;
         }
