@@ -10,9 +10,12 @@ namespace SIBI_Backend.Servicios.Notificaciones
     public class ServicioNotificaciones : IServicioNotificaciones
     {
         private readonly SibiDbContext context;
-        public ServicioNotificaciones(SibiDbContext _context)
+        private readonly IConfiguration configuration;
+
+        public ServicioNotificaciones(SibiDbContext _context, IConfiguration _configuration)
         {
-            this.context = _context;   
+            this.context = _context;
+            this.configuration = _configuration;
         }
 
         public async Task<ResultadoBase> EnviarNotificacionBienvenida(Guid idUsuario)
@@ -31,8 +34,7 @@ namespace SIBI_Backend.Servicios.Notificaciones
                     return salida;
                 }
 
-                // Configuración de SendGrid
-                var apiKey = "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";
+                var apiKey = configuration["SendGrid:ApiKey"];
                 var client = new SendGridClient(apiKey);
 
                 var from = new EmailAddress("sibibiblioteca@gmail.com", "SIBI");
