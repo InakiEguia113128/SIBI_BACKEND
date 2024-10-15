@@ -11,7 +11,7 @@ public partial class TDetallesAlquiler
 
     public Guid IdLibro { get; set; }
 
-    public int PrecioAlquiler { get; set; }
+    public decimal PrecioAlquiler { get; set; }
 
     public DateOnly FechaCreacion { get; set; }
 

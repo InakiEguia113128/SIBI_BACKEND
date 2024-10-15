@@ -211,26 +211,15 @@ namespace SIBI_Backend.Servicios.Alquileres
                     consulta = consulta.Where(x => x.FechaHasta <= DateOnly.FromDateTime(entrada.fechaHasta.Value));
                 }
 
-                consulta = consulta.OrderByDescending(l => l.FechaCreacion);
+                var total = await consulta.CountAsync();
 
-                // Paginación
-                consulta = consulta.Skip(entrada.salta);
-                consulta = consulta.Take(entrada.devolver);
+                var alquileresPaginados = await consulta
+                    .OrderByDescending(l => l.FechaCreacion) 
+                    .Skip(entrada.salta)  
+                    .Take(entrada.devolver) 
+                    .ToListAsync();
 
-                var libros = await consulta.ToListAsync();
-
-                var total = 0;
-
-                if (entrada.idUsuario.HasValue)
-                {
-                    total = await context.TAlquileres.CountAsync(x => x.IdSocio == entrada.idUsuario);
-                }
-                else
-                {
-                    total = await context.TAlquileres.CountAsync();
-                }
-
-                var resultado = libros.Select(alquiler => new
+                var resultado = alquileresPaginados.Select(alquiler => new
                 {
                     total = total,
                     alquiler.IdAlquiler,
@@ -322,21 +311,24 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Error = "La transición de estado no es válida.";
                             return salida;
                         }
-                        var detalles1 = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
-                        var socio1 = await context.TSocios.FirstOrDefaultAsync(x => x.IdUsuario == alquiler.IdSocio && x.Activo == true);
-
-                        if (socio1 != null)
+                        if (nuevoEstado == EstadosAlquilerContante.Cancelado)
                         {
-                            socio1.PuntosAcumulados += alquiler.PuntosCanjeados;
-                        }
-
-                        foreach (var detalle in detalles1)
-                        {
-                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+                            var detalles1 = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+                            var socio1 = await context.TSocios.FirstOrDefaultAsync(x => x.IdUsuario == alquiler.IdSocio && x.Activo == true);
 
                             if (socio1 != null)
                             {
-                                socio1.PuntosAcumulados = socio1.PuntosAcumulados - 5;
+                                socio1.PuntosAcumulados += alquiler.PuntosCanjeados;
+                            }
+
+                            foreach (var detalle in detalles1)
+                            {
+                                detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
+
+                                if (socio1 != null)
+                                {
+                                    socio1.PuntosAcumulados = socio1.PuntosAcumulados - 5;
+                                }
                             }
                         }
                         break;

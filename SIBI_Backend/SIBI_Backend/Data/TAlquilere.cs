@@ -13,7 +13,7 @@ public partial class TAlquilere
 
     public DateOnly FechaHasta { get; set; }
 
-    public int MontoTotal { get; set; }
+    public decimal MontoTotal { get; set; }
 
     public int? PuntosCanjeados { get; set; }
 

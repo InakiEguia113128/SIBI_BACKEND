@@ -29,18 +29,13 @@ namespace SIBI_Backend.Servicios.MercadoPago
             {
                 var usuario = await context.TUsuarios.FirstOrDefaultAsync(x => x.IdUsuario == entrada.idSocio);
 
-                foreach (var detalleAlquiler in entrada.detalleAlquiler)
+                lista_preferencia.Add(new PreferenceItemRequest
                 {
-                    var libro = await context.TLibros.FirstOrDefaultAsync(x=>x.IdLibro == detalleAlquiler.idLibro);
-
-                    lista_preferencia.Add(new PreferenceItemRequest
-                    {
-                        Title = libro.Titulo,
-                        Quantity = 1,
-                        CurrencyId = "ARS",
-                        UnitPrice = detalleAlquiler.subtotalDetalle 
-                    });
-                }
+                    Title = "Alquiler de libro/s",
+                    Quantity = 1,
+                    CurrencyId = "ARS",
+                    UnitPrice = entrada.montoTotal
+                });
 
                 var request = new PreferenceRequest
                 {
