@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using SIBI_Backend.Modelos;
+using SIBI_Backend.Servicios.Notificaciones;
 
 namespace SIBI_Backend.Servicios.Usuarios
 {
@@ -16,10 +17,12 @@ namespace SIBI_Backend.Servicios.Usuarios
     {
         private readonly SibiDbContext context;
         private readonly IConfiguration config;
-        public ServicioUsuario(SibiDbContext _context, IConfiguration _config)
+        private readonly IServicioNotificaciones nofiticaciones;
+        public ServicioUsuario(SibiDbContext _context, IConfiguration _config, IServicioNotificaciones _notificaciones)
         {
             this.context = _context;
             this.config = _config;
+            this.nofiticaciones = _notificaciones;
         }
 
         public async Task<ResultadoBase> RegistrarUsuario(EntradaRegistrarUsuario entrada)
@@ -69,6 +72,8 @@ namespace SIBI_Backend.Servicios.Usuarios
                 });
 
                 await context.SaveChangesAsync();
+
+                await nofiticaciones.EnviarNotificacionBienvenida(idUsuario);
 
                 resultado.Mensaje = "Usuario registrado con exito";
                 resultado.Ok = true;
