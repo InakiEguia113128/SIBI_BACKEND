@@ -29,6 +29,8 @@ public partial class TSocio
 
     public bool Activo { get; set; }
 
+    public DateOnly? FechaModificacion { get; set; }
+
     public virtual TBarrio? IdBarrioNavigation { get; set; }
 
     public virtual TTiposSexo IdSexoNavigation { get; set; } = null!;

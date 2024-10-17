@@ -21,6 +21,10 @@ public partial class TAlquilere
 
     public DateOnly FechaCreacion { get; set; }
 
+    public DateOnly? FechaNotificacionVencimiento { get; set; }
+
+    public DateOnly? FechaNotificacionProximoVencimiento { get; set; }
+
     public virtual TEstadosAlquiler IdEstadoAlquilerNavigation { get; set; } = null!;
 
     public virtual TUsuario IdSocioNavigation { get; set; } = null!;
