@@ -61,6 +61,8 @@ public partial class SibiDbContext : DbContext
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaDesde).HasColumnName("fecha_desde");
             entity.Property(e => e.FechaHasta).HasColumnName("fecha_hasta");
+            entity.Property(e => e.FechaNotificacionProximoVencimiento).HasColumnName("fecha_notificacion_proximo_vencimiento");
+            entity.Property(e => e.FechaNotificacionVencimiento).HasColumnName("fecha_notificacion_vencimiento");
             entity.Property(e => e.IdEstadoAlquiler).HasColumnName("id_estado_alquiler");
             entity.Property(e => e.IdSocio).HasColumnName("id_socio");
             entity.Property(e => e.MontoTotal).HasColumnName("monto_total");
@@ -288,6 +290,7 @@ public partial class SibiDbContext : DbContext
                 .HasColumnType("character varying")
                 .HasColumnName("calle");
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
+            entity.Property(e => e.FechaModificacion).HasColumnName("fecha_modificacion");
             entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");
             entity.Property(e => e.IdBarrio).HasColumnName("id_barrio");
             entity.Property(e => e.IdSexo).HasColumnName("id_sexo");

@@ -75,10 +75,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-
 builder.Services.AddCors();
 builder.Services.AddDbContext<SibiDbContext>(options =>options.UseNpgsql(builder.Configuration.GetConnectionString("Psql")));
-
+builder.Services.AddHostedService<ServicioNotificaciones>();
 
 var app = builder.Build();
 

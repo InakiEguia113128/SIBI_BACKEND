@@ -86,6 +86,15 @@ namespace SIBI_Backend.Servicios.Socios
                     return resultado;
                 }
 
+                if (await context.TAlquileres.AnyAsync(x=>x.IdSocio == socio.IdUsuario && (x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado || x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado)))
+                {
+                    resultado.Error = $"No se puede modificar su porque tiene alquileres en curso o pendientes de devolucion";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
+
                 socio.FechaNacimiento = DateOnly.FromDateTime(entrada.fechaNacimiento);
                 socio.Calle = entrada.calle;
                 socio.Altura = entrada.altura;
@@ -93,6 +102,7 @@ namespace SIBI_Backend.Servicios.Socios
                 socio.IdTipoDocumento = entrada.idTipoDocumento;
                 socio.NroDocumento = entrada.nroDocumento;
                 socio.NumeroTelefono = entrada.numeroTelefono;
+                socio.FechaModificacion = DateOnly.FromDateTime(DateTime.Now);
 
                 await context.SaveChangesAsync();
 
@@ -339,6 +349,7 @@ namespace SIBI_Backend.Servicios.Socios
                     socio.IdUsuarioNavigation.Apellido,
                     socio.IdUsuarioNavigation.IdUsuario,
                     CantidadLibrosAlquilados = socio.IdUsuarioNavigation.TAlquileres
+                        .Where(x => x.IdEstadoAlquiler != EstadosAlquilerContante.Listo_para_retirar && x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado)
                         .SelectMany(alquiler => alquiler.TDetallesAlquilers)
                         .Count()
                 })

@@ -3,6 +3,7 @@ using SIBI_Backend.Comunes;
 using SIBI_Backend.Data;
 using SIBI_Backend.Modelos;
 using SIBI_Backend.Modelos.Alquileres;
+using SIBI_Backend.Servicios.Notificaciones;
 using System.Linq;
 using System.Xml.Schema;
 
@@ -12,10 +13,12 @@ namespace SIBI_Backend.Servicios.Alquileres
     public class ServicioAlquiler : IServicioAlquiler
     {
         private readonly SibiDbContext context;
+        private readonly IServicioNotificaciones servicioNotificaciones;
 
-        public ServicioAlquiler(SibiDbContext _context)
+        public ServicioAlquiler(SibiDbContext _context, IServicioNotificaciones _servicioNotificaciones)
         {
             this.context = _context;
+            this.servicioNotificaciones = _servicioNotificaciones;
         }
 
         public async Task<ResultadoBase> RegistrarAlquiler(EntradaAlquiler entradaAlquiler)
@@ -350,6 +353,11 @@ namespace SIBI_Backend.Servicios.Alquileres
                             {
                                 detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
                             }
+
+                            if (alquiler.FechaHasta <= DateOnly.FromDateTime(DateTime.Now))
+                            {
+                                await servicioNotificaciones.EnviarNotificacionDevolucionAlquiler(alquiler.IdAlquiler);
+                            }
                         }
                         break;
 
@@ -364,7 +372,14 @@ namespace SIBI_Backend.Servicios.Alquileres
                         break;
 
                     case var estado when nuevoEstado == EstadosAlquilerContante.Cancelado:
-
+                        if(estadoActual == EstadosAlquilerContante.En_curso || estadoActual == EstadosAlquilerContante.Pendiente_devolucion || estadoActual == EstadosAlquilerContante.Devuelto)
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = "La transición de estado no es válida.";
+                            return salida;
+                        }
+                                  
                         var detalles =  await context.TDetallesAlquilers.Include(x=>x.IdLibroNavigation).Where(x=>x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
                         var socio = await context.TSocios.FirstOrDefaultAsync(x => x.IdUsuario == alquiler.IdSocio && x.Activo == true);
 
@@ -387,7 +402,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                     default:
                         salida.Ok = false;
                         salida.CodigoEstado = 400;
-                        salida.Error = "Estado de alquiler no reconocido.";
+                        salida.Error = "La transición de estado no es válida.";
                         return salida;
                 }
 
