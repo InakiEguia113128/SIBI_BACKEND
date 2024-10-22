@@ -369,6 +369,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Error = "La transición de estado no es válida.";
                             return salida;
                         }
+                        await servicioNotificaciones.EnviarNotificacionDevolucionAlquilerFueraTermino(alquiler.IdAlquiler);
                         break;
 
                     case var estado when nuevoEstado == EstadosAlquilerContante.Cancelado:
