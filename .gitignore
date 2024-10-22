@@ -37,3 +37,7 @@ msbuild.wrn
 /.vs
 .vs/
 ../.vs/
+
+# Ignorar archivos de configuración con información sensible
+appsettings.json
+appsettings.Development.json
