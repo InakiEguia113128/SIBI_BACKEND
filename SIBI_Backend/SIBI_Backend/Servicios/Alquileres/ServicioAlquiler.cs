@@ -354,7 +354,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                                 detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
                             }
 
-                            if (alquiler.FechaHasta <= DateOnly.FromDateTime(DateTime.Now))
+                            if (alquiler.FechaHasta >= DateOnly.FromDateTime(DateTime.Now))
                             {
                                 await servicioNotificaciones.EnviarNotificacionDevolucionAlquiler(alquiler.IdAlquiler);
                             }
