@@ -41,3 +41,4 @@ msbuild.wrn
 # Ignorar archivos de configuración con información sensible
 appsettings.json
 appsettings.Development.json
+SIBI_Backend/SIBI_Backend/appsettings.json
