@@ -88,7 +88,7 @@ namespace SIBI_Backend.Servicios.Socios
 
                 if (await context.TAlquileres.AnyAsync(x=>x.IdSocio == socio.IdUsuario && (x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado || x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado)))
                 {
-                    resultado.Error = $"No se puede modificar su porque tiene alquileres en curso o pendientes de devolucion";
+                    resultado.Error = $"No se pueden modificar tus datos porque tienes alquileres en curso o pendientes de devolucion";
                     resultado.Ok = false;
                     resultado.CodigoEstado = 400;
 

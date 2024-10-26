@@ -196,11 +196,6 @@ namespace SIBI_Backend.Servicios.Alquileres
                     consulta = consulta.Where(x => x.IdSocioNavigation.TSocio.IdTipoDocumento == entrada.idTipoDocumentoSocio);
                 }
 
-                if (entrada.idEstadoAlquiler.HasValue)
-                {
-                    consulta = consulta.Where(x => x.IdEstadoAlquiler == entrada.idEstadoAlquiler.Value);
-                }
-
                 if (entrada.fechaDesde.HasValue && entrada.fechaHasta.HasValue)
                 {
                     consulta = consulta.Where(x => x.FechaDesde >= DateOnly.FromDateTime(entrada.fechaDesde.Value) && x.FechaHasta <= DateOnly.FromDateTime(entrada.fechaHasta.Value));
