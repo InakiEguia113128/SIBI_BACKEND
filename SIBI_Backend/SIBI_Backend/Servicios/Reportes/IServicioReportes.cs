@@ -8,5 +8,6 @@ namespace SIBI_Backend.Servicios.Reportes
     {
         Task<ResultadoBase> LibrosAlquiladosPorGenero(EntradaReporteLibrosAlquiladosPorGenero entrada);
         Task<ResultadoBase> ObtenerAquileresVencidos(EntradaObtenerAlquileres entrada);
+        Task<ResultadoBase> ObtenerCantidadSociosActivosPorMes(EntradaSociosActivosMes entrada);
     }
 }

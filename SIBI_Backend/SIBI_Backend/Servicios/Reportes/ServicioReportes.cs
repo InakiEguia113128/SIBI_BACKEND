@@ -4,6 +4,7 @@ using SIBI_Backend.Data;
 using SIBI_Backend.Modelos;
 using SIBI_Backend.Modelos.Alquileres;
 using SIBI_Backend.Modelos.Reportes;
+using System.Globalization;
 
 namespace SIBI_Backend.Servicios.Reportes
 {
@@ -169,6 +170,56 @@ namespace SIBI_Backend.Servicios.Reportes
             catch (Exception)
             {
                 salida.Error = "Error al obtener alquileres";
+                salida.Ok = false;
+                salida.CodigoEstado = 500;
+            }
+
+            return salida;
+        }
+
+        public async Task<ResultadoBase> ObtenerCantidadSociosActivosPorMes(EntradaSociosActivosMes entrada)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                DateTime fechaInicio;
+                DateTime fechaFin;
+
+                // Validar fechas de entrada o usar los últimos 12 meses
+                if (entrada.FechaDesde.HasValue && entrada.FechaHasta.HasValue)
+                {
+                    fechaInicio = entrada.FechaDesde.Value;
+                    fechaFin = entrada.FechaHasta.Value;
+                }
+                else
+                {
+                    var anioActual = DateTime.Now.Year;
+                    fechaInicio = new DateTime(anioActual, 1, 1);
+                    fechaFin = new DateTime(anioActual, 12, 31);
+                }
+
+                var resultado = await context.TAlquileres
+                    .Where(x => x.FechaCreacion >= DateOnly.FromDateTime(fechaInicio) && x.FechaCreacion <= DateOnly.FromDateTime(fechaFin))
+                    .Where(x => x.IdSocioNavigation.TSocio != null)
+                    .Where(x => x.IdSocioNavigation.TSocio.Activo == true|| x.IdSocioNavigation.TSocio.Activo == false)
+                    .GroupBy(x => new { Mes = x.FechaCreacion.Month, Año = x.FechaCreacion.Year })
+                    .Select(g => new
+                    {
+                        Mes = CultureInfo.GetCultureInfo("es-ES").TextInfo.ToTitleCase(CultureInfo.GetCultureInfo("es-ES").DateTimeFormat.GetMonthName(g.Key.Mes)),
+                        g.Key.Año,
+                        CantidadSociosActivos = g.Select(a => a.IdSocioNavigation.TSocio.IdUsuario).Distinct().Count()
+                    })
+                    .ToListAsync();
+
+                salida.Ok = true;
+                salida.Mensaje = "Socios activos recuperados con éxito";
+                salida.Resultado = resultado;
+                salida.CodigoEstado = 200;
+            }
+            catch (Exception)
+            {
+                salida.Error = "Error al obtener socios activos";
                 salida.Ok = false;
                 salida.CodigoEstado = 500;
             }

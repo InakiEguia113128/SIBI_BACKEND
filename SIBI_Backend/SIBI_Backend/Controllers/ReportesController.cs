@@ -43,5 +43,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPut("socios-activos")]
+        public async Task<IActionResult> SociosActivos([FromBody] EntradaSociosActivosMes entrada)
+        {
+            var respuesta = await servicioReportes.ObtenerCantidadSociosActivosPorMes(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

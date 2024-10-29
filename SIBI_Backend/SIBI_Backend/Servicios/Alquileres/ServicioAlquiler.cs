@@ -307,6 +307,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Ok = false;
                             salida.CodigoEstado = 400;
                             salida.Error = "La transición de estado no es válida.";
+
                             return salida;
                         }
                         if (nuevoEstado == EstadosAlquilerContante.Cancelado)
@@ -337,6 +338,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Ok = false;
                             salida.CodigoEstado = 400;
                             salida.Error = "La transición de estado no es válida.";
+
                             return salida;
                         }
 
@@ -362,6 +364,16 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Ok = false;
                             salida.CodigoEstado = 400;
                             salida.Error = "La transición de estado no es válida.";
+
+                            return salida;
+                        }
+
+                        if(alquiler.FechaHasta > DateOnly.FromDateTime(DateTime.Now))
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = "El alquiler todavia no excedió la fecha limite de devolucion";
+
                             return salida;
                         }
                         await servicioNotificaciones.EnviarNotificacionDevolucionAlquilerFueraTermino(alquiler.IdAlquiler);
@@ -373,6 +385,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                             salida.Ok = false;
                             salida.CodigoEstado = 400;
                             salida.Error = "La transición de estado no es válida.";
+
                             return salida;
                         }
                                   
@@ -399,6 +412,7 @@ namespace SIBI_Backend.Servicios.Alquileres
                         salida.Ok = false;
                         salida.CodigoEstado = 400;
                         salida.Error = "La transición de estado no es válida.";
+
                         return salida;
                 }
 
