@@ -169,9 +169,9 @@ namespace SIBI_Backend.Servicios.Libros
                     consulta = consulta.Where(x => x.Titulo.ToLower().Contains(tituloLower));
                 }
 
-                if (!string.IsNullOrEmpty(entrada.autos))
+                if (!string.IsNullOrEmpty(entrada.autor))
                 {
-                    var autorLower = entrada.autos.ToLower();
+                    var autorLower = entrada.autor.ToLower();
                     consulta = consulta.Where(x => x.NombreAutor.ToLower().Contains(autorLower));
                 }
 

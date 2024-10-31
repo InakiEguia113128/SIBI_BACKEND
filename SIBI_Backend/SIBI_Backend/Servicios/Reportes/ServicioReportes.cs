@@ -134,8 +134,6 @@ namespace SIBI_Backend.Servicios.Reportes
 
                 var alquileresPaginados = await consulta
                     .OrderByDescending(l => l.FechaCreacion)
-                    .Skip(entrada.salta)
-                    .Take(entrada.devolver)
                     .ToListAsync();
 
                 var resultado = alquileresPaginados.Select(alquiler => new
@@ -160,11 +158,42 @@ namespace SIBI_Backend.Servicios.Reportes
                         alquiler.IdSocioNavigation.Nombre,
                         alquiler.IdSocioNavigation.Apellido
                     }
+                }).Skip(entrada.salta)
+                   .Take(entrada.devolver);
+
+                var resultadoPDF = alquileresPaginados.Select(alquiler => new
+                {
+                    total = total,
+                    alquiler.IdAlquiler,
+                    alquiler.IdEstadoAlquiler,
+                    alquiler.IdEstadoAlquilerNavigation.Descripcion,
+                    alquiler.FechaDesde,
+                    alquiler.FechaHasta,
+                    detallesAlquiler = alquiler.TDetallesAlquilers.Select(x => new { x.IdLibro, x.FechaCreacion, x.PrecioAlquiler, x.IdLibroNavigation.Titulo }),
+                    alquiler.MontoTotal,
+                    alquiler.PuntosCanjeados,
+                    socio = new
+                    {
+                        SocioRegistrado = alquiler.IdSocioNavigation.TSocio == null ? false : true,
+                        alquiler.IdSocioNavigation.TSocio?.NroDocumento,
+                        alquiler.IdSocioNavigation.TSocio?.IdTipoDocumento,
+                        alquiler.IdSocioNavigation.TSocio?.Calle,
+                        alquiler.IdSocioNavigation.TSocio?.Altura,
+                        alquiler.IdSocioNavigation.TSocio?.NumeroTelefono,
+                        alquiler.IdSocioNavigation.Nombre,
+                        alquiler.IdSocioNavigation.Apellido
+                    }
                 });
+
+                var resultado2 = new
+                {
+                    resultado = resultado,
+                    resultadoPDF = resultadoPDF
+                };
 
                 salida.Ok = true;
                 salida.Mensaje = "Alquieleres recuperados con éxito";
-                salida.Resultado = resultado;
+                salida.Resultado = resultado2;
                 salida.CodigoEstado = 200;
             }
             catch (Exception)
@@ -220,6 +249,117 @@ namespace SIBI_Backend.Servicios.Reportes
             catch (Exception)
             {
                 salida.Error = "Error al obtener socios activos";
+                salida.Ok = false;
+                salida.CodigoEstado = 500;
+            }
+
+            return salida;
+        }
+
+        public async Task<ResultadoBase> ObtenerLibrosAlquilados(EntradaReporteLibrosAlquilados entrada)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                var consulta = context.TAlquileres
+                    .Include(x => x.TDetallesAlquilers)
+                    .ThenInclude(x => x.IdLibroNavigation)
+                    .ThenInclude(x => x.IdGeneroNavigation)
+                    .Include(x => x.IdEstadoAlquilerNavigation)
+                    .Where(x => x.IdEstadoAlquilerNavigation.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado) 
+                    .AsQueryable();
+
+                if (entrada.fechaPublicacionDesde.HasValue && entrada.fechaPublicacionHasta.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaDesde >= DateOnly.FromDateTime(entrada.fechaPublicacionDesde.Value) && x.FechaHasta <= DateOnly.FromDateTime(entrada.fechaPublicacionHasta.Value));
+                }
+                else if (entrada.fechaPublicacionDesde.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaDesde >= DateOnly.FromDateTime(entrada.fechaPublicacionDesde.Value));
+                }
+                else if (entrada.fechaPublicacionHasta.HasValue)
+                {
+                    consulta = consulta.Where(x => x.FechaHasta <= DateOnly.FromDateTime(entrada.fechaPublicacionHasta.Value));
+                }
+
+                consulta = consulta.Where(x =>
+                    (!string.IsNullOrEmpty(entrada.titulo) ? x.TDetallesAlquilers.Any(d => d.IdLibroNavigation.Titulo.ToLower().Contains(entrada.titulo.ToLower())) : true) &&
+                    (!string.IsNullOrEmpty(entrada.autor) ? x.TDetallesAlquilers.Any(d => d.IdLibroNavigation.NombreAutor.ToLower().Contains(entrada.autor.ToLower())) : true) &&
+                    (!string.IsNullOrEmpty(entrada.editorial) ? x.TDetallesAlquilers.Any(d => d.IdLibroNavigation.Editorial.ToLower().Contains(entrada.editorial.ToLower())) : true) &&
+                    (!string.IsNullOrEmpty(entrada.nGenero) ? x.TDetallesAlquilers.Any(d => d.IdLibroNavigation.IdGeneroNavigation.Descripcion.ToLower().Contains(entrada.nGenero.ToLower())) : true) &&
+                    (entrada.idGenero.HasValue ? x.TDetallesAlquilers.Any(d => d.IdLibroNavigation.IdGenero == entrada.idGenero) : true)
+                );
+
+                var count = await consulta
+                            .SelectMany(x => x.TDetallesAlquilers)
+                            .GroupBy(x => new
+                            {
+                                x.IdLibroNavigation.IdLibro,
+                                x.IdLibroNavigation.Titulo,
+                                x.IdLibroNavigation.NombreAutor,
+                                Genero = x.IdLibroNavigation.IdGeneroNavigation.Descripcion,
+                                x.IdLibroNavigation.Editorial,
+                                OtroGenero = x.IdLibroNavigation.NGenero,
+                                x.IdLibroNavigation.CantidadEjemplares,
+                                x.IdLibroNavigation.FechaPublicacion
+                            })
+                            .CountAsync();
+
+
+                var alquileres = await consulta.ToListAsync();
+
+                var response = alquileres
+                                .SelectMany(x => x.TDetallesAlquilers)
+                                .GroupBy(x => x.IdLibroNavigation.IdLibro)
+                                .Select(g => new
+                                {
+                                    Titulo = g.First().IdLibroNavigation.Titulo,
+                                    NombreAutor = g.First().IdLibroNavigation.NombreAutor,
+                                    Genero = g.First().IdLibroNavigation.IdGeneroNavigation.Descripcion,
+                                    Editorial = g.First().IdLibroNavigation.Editorial,
+                                    OtroGenero = g.First().IdLibroNavigation.NGenero,
+                                    CantidadAlquilados = g.Count(),
+                                    CantidadEjemplares = g.First().IdLibroNavigation.CantidadEjemplares,
+                                    FechaPublicacion = g.First().IdLibroNavigation.FechaPublicacion,
+                                    count // Aquí asumimos que `count` está definido previamente
+                                })
+                                .OrderByDescending(x => x.CantidadAlquilados)
+                                .Skip(entrada.salta)
+                                .Take(entrada.devolver)
+                                .ToList();
+
+                var responsePDF = alquileres
+                                    .SelectMany(x => x.TDetallesAlquilers)
+                                    .GroupBy(x => x.IdLibroNavigation.IdLibro)
+                                    .Select(g => new
+                                    {
+                                        Titulo = g.First().IdLibroNavigation.Titulo,
+                                        NombreAutor = g.First().IdLibroNavigation.NombreAutor,
+                                        Genero = g.First().IdLibroNavigation.IdGeneroNavigation.Descripcion,
+                                        Editorial = g.First().IdLibroNavigation.Editorial,
+                                        OtroGenero = g.First().IdLibroNavigation.NGenero,
+                                        CantidadAlquilados = g.Count(),
+                                        CantidadEjemplares = g.First().IdLibroNavigation.CantidadEjemplares,
+                                        FechaPublicacion = g.First().IdLibroNavigation.FechaPublicacion,
+                                        count // Aquí asumimos que `count` está definido previamente
+                                    })
+                                    .OrderByDescending(x => x.CantidadAlquilados)
+                                    .ToList();
+                var resultado = new
+                {
+                    resultado = response,
+                    resultadoPDF = responsePDF
+                };
+
+                salida.Ok = true;
+                salida.Mensaje = "Reporte de libros alquilados generado con éxito";
+                salida.Resultado = resultado;
+                salida.CodigoEstado = 200;
+            }
+            catch (Exception)
+            {
+                salida.Error = "Error al obtener reporte de libros alquilados";
                 salida.Ok = false;
                 salida.CodigoEstado = 500;
             }

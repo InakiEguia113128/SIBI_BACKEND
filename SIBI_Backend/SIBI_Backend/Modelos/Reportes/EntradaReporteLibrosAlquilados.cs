@@ -1,6 +1,6 @@
-﻿namespace SIBI_Backend.Modelos.Libros
+﻿namespace SIBI_Backend.Modelos.Reportes
 {
-    public class EntradaObtenerCatalogo
+    public class EntradaReporteLibrosAlquilados
     {
         public string? titulo { get; set; }
         public string? autor { get; set; }
@@ -9,10 +9,7 @@
         public DateTime? fechaPublicacionHasta { get; set; }
         public Guid? idGenero { get; set; }
         public string? nGenero { get; set; }
-        public decimal? precioDesde { get; set; }
-        public decimal? precioHasta { get; set; }
-        public string? ISBN {  get; set; }
         public int devolver { get; set; }
-        public int salta {  get; set; }
+        public int salta { get; set; }
     }
 }

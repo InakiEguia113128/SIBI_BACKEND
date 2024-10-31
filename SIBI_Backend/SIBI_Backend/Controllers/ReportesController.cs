@@ -56,5 +56,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPut("libros-relevantes")]
+        public async Task<IActionResult> ObtenerLibrosMasAlquilados([FromBody] EntradaReporteLibrosAlquilados entrada)
+        {
+            var respuesta = await servicioReportes.ObtenerLibrosAlquilados(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }
