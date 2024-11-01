@@ -69,5 +69,18 @@ namespace SIBI_Backend.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPut("ingresos-mensuales")]
+        public async Task<IActionResult> ObtenerIngresosMensuales([FromBody] EntradaReporteLibrosAlquiladosPorGenero entrada)
+        {
+            var respuesta = await servicioReportes.ObtenerIngresosPorAlquileres(entrada);
+
+            if (!respuesta.Ok)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

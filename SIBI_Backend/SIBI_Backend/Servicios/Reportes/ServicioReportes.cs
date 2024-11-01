@@ -366,5 +366,52 @@ namespace SIBI_Backend.Servicios.Reportes
 
             return salida;
         }
+
+        public async Task<ResultadoBase> ObtenerIngresosPorAlquileres(EntradaReporteLibrosAlquiladosPorGenero entrada)
+        {
+            var salida = new ResultadoBase();
+
+            try
+            {
+                DateTime fechaInicio;
+                DateTime fechaFin;
+
+                if (entrada.fechaDesde.HasValue && entrada.fechaHasta.HasValue)
+                {
+                    fechaInicio = entrada.fechaDesde.Value;
+                    fechaFin = entrada.fechaHasta.Value;
+                }
+                else
+                {
+                    var anioActual = DateTime.Now.Year;
+                    fechaInicio = new DateTime(anioActual, 1, 1);
+                    fechaFin = new DateTime(anioActual, 12, 31);
+                }
+
+                var resultado = await context.TAlquileres
+                    .Where(x => x.FechaDesde >= DateOnly.FromDateTime(fechaInicio) && x.FechaDesde <= DateOnly.FromDateTime(fechaFin) && x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado && x.IdEstadoAlquiler != EstadosAlquilerContante.Listo_para_retirar)
+                    .GroupBy(x => new { Mes = x.FechaDesde.Month, Año = x.FechaDesde.Year })
+                    .Select(g => new
+                    {
+                        Mes = CultureInfo.GetCultureInfo("es-ES").TextInfo.ToTitleCase(CultureInfo.GetCultureInfo("es-ES").DateTimeFormat.GetMonthName(g.Key.Mes)),
+                        g.Key.Año,
+                        TotalIngresos = g.Sum(a => a.MontoTotal)
+                    })
+                    .ToListAsync();
+
+                salida.Ok = true;
+                salida.Mensaje = "Ingresos mensuales calculados con éxito";
+                salida.Resultado = resultado;
+                salida.CodigoEstado = 200;
+            }
+            catch (Exception ex)
+            {
+                salida.Ok = false;
+                salida.Mensaje = "Error al calcular los ingresos mensuales: " + ex.Message;
+                salida.CodigoEstado = 500;
+            }
+
+            return salida;
+        }
     }
 }
