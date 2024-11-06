@@ -283,7 +283,7 @@ namespace SIBI_Backend.Servicios.Socios
                                     .ThenInclude(a => a.TDetallesAlquilers)
                             .Where(s => s.Activo &&
                                         s.IdUsuarioNavigation.TAlquileres
-                                            .Any(a => a.FechaDesde.Month == DateTime.Now.Month && a.FechaDesde.Year == DateTime.Now.Year))
+                                            .Any(a => a.FechaDesde.Month == DateTime.Now.Month))
                             .ToListAsync();
 
 
@@ -363,6 +363,15 @@ namespace SIBI_Backend.Servicios.Socios
                         Socio = s
                     })
                     .FirstOrDefault(s => s.Socio.IdUsuario == idSocio);
+
+                if(socioEspecifico.Socio.CantidadLibrosAlquilados == 0)
+                {
+                    resultado.Error = "Error al obtener posicion de socio en ranking mensual, el socio no fue encontrado";
+                    resultado.Ok = false;
+                    resultado.CodigoEstado = 400;
+
+                    return resultado;
+                }
 
                 if(socioEspecifico == null)
                 {
