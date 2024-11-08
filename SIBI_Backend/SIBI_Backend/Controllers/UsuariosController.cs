@@ -52,7 +52,7 @@ namespace SIBI_Backend.Controllers
             return Ok(respuesta);
         }
 
-        [Authorize]
+        
         [HttpPut("modificar-usuario")]
         public async Task<IActionResult> ModificarUsuario([FromBody] EntradaModificarUsuario entrada)
         {

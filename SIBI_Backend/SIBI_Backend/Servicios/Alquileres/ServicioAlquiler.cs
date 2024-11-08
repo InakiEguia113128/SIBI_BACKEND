@@ -344,9 +344,9 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                         if(nuevoEstado == EstadosAlquilerContante.Devuelto)
                         {
-                            var detallesAlquiler = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
+                            var detallesAlquiler2 = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
 
-                            foreach (var detalle in detallesAlquiler)
+                            foreach (var detalle in detallesAlquiler2)
                             {
                                 detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
                             }
@@ -354,6 +354,17 @@ namespace SIBI_Backend.Servicios.Alquileres
                             if (alquiler.FechaHasta >= DateOnly.FromDateTime(DateTime.Now))
                             {
                                 await servicioNotificaciones.EnviarNotificacionDevolucionAlquiler(alquiler.IdAlquiler);
+                            }
+                        }
+                        else
+                        {
+                            if (alquiler.FechaHasta > DateOnly.FromDateTime(DateTime.Now))
+                            {
+                                salida.Ok = false;
+                                salida.CodigoEstado = 400;
+                                salida.Error = "El alquiler todavia no excedió la fecha limite de devolucion";
+
+                                return salida;
                             }
                         }
                         break;
@@ -368,14 +379,18 @@ namespace SIBI_Backend.Servicios.Alquileres
                             return salida;
                         }
 
-                        if(alquiler.FechaHasta > DateOnly.FromDateTime(DateTime.Now))
-                        {
-                            salida.Ok = false;
-                            salida.CodigoEstado = 400;
-                            salida.Error = "El alquiler todavia no excedió la fecha limite de devolucion";
+                        var detallesAlquiler = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
 
-                            return salida;
+                        foreach (var detalle in detallesAlquiler)
+                        {
+                            detalle.IdLibroNavigation.CantidadEjemplares = detalle.IdLibroNavigation.CantidadEjemplares + 1;
                         }
+
+                        if (alquiler.FechaHasta >= DateOnly.FromDateTime(DateTime.Now))
+                        {
+                            await servicioNotificaciones.EnviarNotificacionDevolucionAlquiler(alquiler.IdAlquiler);
+                        }
+                        
                         await servicioNotificaciones.EnviarNotificacionDevolucionAlquilerFueraTermino(alquiler.IdAlquiler);
                         break;
 
