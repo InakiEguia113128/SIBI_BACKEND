@@ -91,8 +91,8 @@ namespace SIBI_Backend.Servicios.Notificaciones
                 {
                     var context = scope.ServiceProvider.GetRequiredService<SibiDbContext>();
 
-                    //await EnviarMailNotificacionAlquilerAVencer(context);
-                    //await EnviarMailNotificacionAlquilerVencido(context);
+                    await EnviarMailNotificacionAlquilerAVencer(context);
+                    await EnviarMailNotificacionAlquilerVencido(context);
                 }
 
                 await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // Configuramos el tiempo que se necesita esperar

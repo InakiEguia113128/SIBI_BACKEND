@@ -364,7 +364,7 @@ namespace SIBI_Backend.Servicios.Socios
                     })
                     .FirstOrDefault(s => s.Socio.IdUsuario == idSocio);
 
-                if(socioEspecifico.Socio.CantidadLibrosAlquilados == 0)
+                if(socioEspecifico?.Socio.CantidadLibrosAlquilados == 0)
                 {
                     resultado.Error = "Error al obtener posicion de socio en ranking mensual, el socio no fue encontrado";
                     resultado.Ok = false;
