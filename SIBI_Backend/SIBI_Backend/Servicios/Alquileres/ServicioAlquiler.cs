@@ -310,6 +310,16 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                             return salida;
                         }
+
+                        if (nuevoEstado == EstadosAlquilerContante.En_curso && alquiler.FechaDesde > DateOnly.FromDateTime(DateTime.Now))
+                        {
+                            salida.Ok = false;
+                            salida.CodigoEstado = 400;
+                            salida.Error = $"No es posible poner en curso el alquiler, la fecha de inicio es {alquiler.FechaDesde.ToString("dd/MM/yyyy")}";
+
+                            return salida;
+                        }
+
                         if (nuevoEstado == EstadosAlquilerContante.Cancelado)
                         {
                             var detalles1 = await context.TDetallesAlquilers.Include(x => x.IdLibroNavigation).Where(x => x.IdAlquiler == alquiler.IdAlquiler).ToListAsync();
