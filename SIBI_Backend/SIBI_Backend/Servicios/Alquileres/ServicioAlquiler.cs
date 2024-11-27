@@ -73,11 +73,14 @@ namespace SIBI_Backend.Servicios.Alquileres
 
                     libro.CantidadEjemplares = libro.CantidadEjemplares - 1;
 
-                    if (socio.PuntosAcumulados == null)
+                    if (socio != null)
                     {
-                        socio.PuntosAcumulados = 0;
+                        if (socio.PuntosAcumulados == null)
+                        {
+                            socio.PuntosAcumulados = 0;
+                        }
+                        socio.PuntosAcumulados += 5;
                     }
-                    socio.PuntosAcumulados += 5;
                 }
 
                 alquiler.TDetallesAlquilers = lista_detalles;
