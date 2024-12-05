@@ -23,7 +23,7 @@ namespace SIBI_Backend.Servicios.MercadoPago
             var resultado = new ResultadoBase();
             var lista_preferencia = new List<PreferenceItemRequest>();
 
-            MercadoPagoConfig.AccessToken = "TEST-2016235320474598-100209-108336d1282e8bda72e7614513802b2a-335183307";
+            MercadoPagoConfig.AccessToken = "APP_USR-2016235320474598-100209-d72b8117e5418d1f826f7cf9b9cb9039-335183307";
 
             try
             {

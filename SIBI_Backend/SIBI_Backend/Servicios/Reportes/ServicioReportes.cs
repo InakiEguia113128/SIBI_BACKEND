@@ -389,7 +389,7 @@ namespace SIBI_Backend.Servicios.Reportes
                 }
 
                 var resultado = await context.TAlquileres
-                    .Where(x => x.FechaDesde >= DateOnly.FromDateTime(fechaInicio) && x.FechaDesde <= DateOnly.FromDateTime(fechaFin) && x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado && x.IdEstadoAlquiler != EstadosAlquilerContante.Listo_para_retirar)
+                    .Where(x => x.FechaDesde >= DateOnly.FromDateTime(fechaInicio) && x.FechaDesde <= DateOnly.FromDateTime(fechaFin) && x.IdEstadoAlquiler != EstadosAlquilerContante.Cancelado)
                     .GroupBy(x => new { Mes = x.FechaDesde.Month, Año = x.FechaDesde.Year })
                     .Select(g => new
                     {
